@@ -1,0 +1,80 @@
+/* ======= Reset & Base ======= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4; /* light neutral background */
+    color: #333; /* dark gray text */
+    padding: 20px;
+}
+
+/* ======= Header ======= */
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2c2c2c;
+}
+
+/* ======= Table Design ======= */
+table {
+    width: 80%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+th {
+    background-color: #e0e0e0; /* neutral gray */
+    color: #222;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+    transition: 0.3s;
+}
+
+/* ======= Links ======= */
+a {
+    text-decoration: none;
+    color: #3a3a3a;
+    font-weight: 500;
+    margin: 0 5px;
+}
+
+a:hover {
+    color: #000;
+    text-decoration: underline;
+}
+
+/* ======= Buttons in Table ======= */
+td a {
+    background: #e0e0e0;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+td a:hover {
+    background: #cfcfcf;
+    color: #000;
+}
