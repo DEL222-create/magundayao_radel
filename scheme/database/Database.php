@@ -238,7 +238,16 @@ class Database {
             PDO::ATTR_EMULATE_PREPARES   => false,
         );
 
-        
+        // Get DB credentials from environment (Render Environment Variables)
+$host     = getenv(name: 'DB_HOST');
+$dbname   = getenv('DB_NAME');
+$username = getenv('DB_USER');
+$password = getenv('DB_PASS');
+$port     = getenv('DB_PORT') ?: 3306;
+
+// Build DSN string for PDO
+$dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
+
 try {
     $this->db = new PDO($dsn, $username, $password, $options);
     $this->driver = $this->db->getAttribute(PDO::ATTR_DRIVER_NAME);
