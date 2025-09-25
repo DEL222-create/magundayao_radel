@@ -52,7 +52,7 @@ class UserController extends Controller {
         );
         $data['page'] = $this->pagination->paginate();
 
-        $this->call->view('users/index', $data);
+        $this->call->view('user/index', $data);
     }
 
     public function create(){
