@@ -72,7 +72,7 @@ class UserController extends Controller {
             }
 
         }else{
-            $this->call->view('users/create');
+            $this->call->view('user/create');
         }
     }
 
@@ -99,7 +99,7 @@ class UserController extends Controller {
             }
         }else{
             $data['user'] = $user;
-            $this->call->view('users/update', $data);
+            $this->call->view('user/update', $data);
         }
     }
     
