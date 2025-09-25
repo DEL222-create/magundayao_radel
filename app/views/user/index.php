@@ -53,6 +53,17 @@
     <div class="container">
         <div class="card">
             <h2 class="text-center mb-4">USER LIST</h2>
+            <form method="get" action="<?=site_url()?>" class="flex">
+          <input 
+            type="text" 
+            name="q" 
+            value="<?=html_escape($_GET['q'] ?? '')?>" 
+            placeholder="Search user..." 
+            class="w-full border border-purple-200 bg-purple-50 rounded-l-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300 text-gray-800">
+          <button type="submit" class="bg-purple-500 hover:bg-purple-600 text-white px-4 rounded-r-xl transition">
+            🔍
+          </button>
+        </form>
             <a href="<?=site_url('user/create');?>" class="btn btn-primary mb-3">+ Add New User</a>
             <table class="table table-bordered table-striped table-hover text-dark">
                 <thead>
@@ -80,6 +91,11 @@
                 </tbody>
             </table>
         </div>
+        <div class="mt-6 flex justify-center">
+        <div class="pagination">
+          <?php echo $page; ?>
+        </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
