@@ -6,7 +6,7 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
  * 
  * Automatically generated via CLI.
  */
-class UsersController extends Controller {
+class UserController extends Controller {
     public function __construct()
     {
         parent::__construct();
@@ -30,7 +30,7 @@ class UsersController extends Controller {
 
         
         $all = $this->UserModel->page($q, $records_per_page, $page);
-        $data['users'] = $all['records'];
+        $data['all'] = $all['records'];
         $total_rows = $all['total_rows'];
 
         
