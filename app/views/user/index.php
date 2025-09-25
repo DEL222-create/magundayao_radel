@@ -75,7 +75,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach(html_escape($users) as $user): ?>
+                    <?php foreach(html_escape($all) as $user): ?>
                         <tr>
                             <td><?=$user['id'];?></td>
                             <td><?=$user['username'];?></td>
