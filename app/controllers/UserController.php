@@ -23,7 +23,7 @@ class UserController extends Controller {
         $total_rows = $all['total_rows'];
 
         // Pagination base URL
-        $base_url = site_url('users');
+        $base_url = site_url('user');
         $base_url .= !empty($q) ? '?q=' . urlencode($q) . '&page=' : '?page=';
 
         $this->pagination->set_options([
@@ -59,7 +59,7 @@ class UserController extends Controller {
             ];
 
             if ($this->UserModel->insert($data)) {
-                redirect(site_url('users'));
+                redirect(site_url('user'));
             } else {
                 echo "Error in creating user.";
             }
@@ -87,7 +87,7 @@ class UserController extends Controller {
             ];
 
             if ($this->UserModel->update($id, $data)) {
-                redirect(site_url('users'));
+                redirect(site_url('user'));
             } else {
                 echo "Error in updating user.";
             }
@@ -100,7 +100,7 @@ class UserController extends Controller {
     public function delete($id)
     {
         if ($this->UserModel->delete($id)) {
-            redirect(site_url('users'));
+            redirect(site_url('user'));
         } else {
             echo "Error in deleting user.";
         }
