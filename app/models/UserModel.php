@@ -1,11 +1,6 @@
 <?php
 defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
-/**
- * Model: Usermodel
- * 
- * Automatically generated via CLI.
- */
 class UserModel extends Model {
     protected $table = 'users';
     protected $primary_key = 'id';
@@ -15,30 +10,36 @@ class UserModel extends Model {
         parent::__construct();
     }
 
+    /**
+     * Paginate users with optional search
+     */
+    public function page($q = '', $records_per_page = 5, $page = 1) {
 
-    public function page($q = '', $records_per_page = null, $page = null) {
- 
-            if (is_null($page)) {
-                return $this->db->table('users')->get_all();
-            } else {
-                $query = $this->db->table('users');
+        // Ensure page is integer >=1
+        $page = max(1, (int)$page);
+        $records_per_page = (int)$records_per_page;
 
-                // Build LIKE conditions
-                $query->like('id', '%'.$q.'%')
-                    ->or_like('username', '%'.$q.'%')
-                    ->or_like('email', '%'.$q.'%');
-                    
-                // Clone before pagination
-                $countQuery = clone $query;
+        $query = $this->db->table($this->table);
 
-                $data['total_rows'] = $countQuery->select_count('*', 'count')
-                                                ->get()['count'];
-
-                $data['records'] = $query->pagination($records_per_page, $page)
-                                        ->get_all();
-
-                return $data;
-            }
+        // Apply search if $q is not empty
+        if (!empty($q)) {
+            $query->like('username', '%'.$q.'%')
+                  ->or_like('email', '%'.$q.'%');
         }
 
+        // Total rows for pagination
+        $countQuery = clone $query;
+        $total_rows = $countQuery->select_count('*', 'count')
+                                 ->get()['count'];
+
+        // Paginated records
+        $offset = ($page - 1) * $records_per_page;
+        $records = $query->limit($records_per_page, $offset)
+                         ->get_all();
+
+        return [
+            'records' => $records,
+            'total_rows' => $total_rows
+        ];
+    }
 }
