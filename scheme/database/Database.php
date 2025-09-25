@@ -239,7 +239,7 @@ class Database {
         );
 
         // Get DB credentials from environment (Render Environment Variables)
-$host     = getenv(name: 'DB_HOST');
+$host     = getenv('DB_HOST');
 $dbname   = getenv('DB_NAME');
 $username = getenv('DB_USER');
 $password = getenv('DB_PASS');
