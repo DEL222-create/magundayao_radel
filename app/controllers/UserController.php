@@ -25,30 +25,31 @@ class UserController extends Controller {
         $data['all'] = $all['records'];
         $total_rows = $all['total_rows'];
 
-       $base_url = site_url('user/index');
+     $base_url = 'user/index';   // wag site_url()
 if (!empty($q)) {
     $base_url .= '?q=' . urlencode($q);
 }
 
 
-       $this->pagination->set_options([
+$this->pagination->set_options([
     'first_link'    => '« First',
     'last_link'     => 'Last »',
     'next_link'     => 'Next »',
     'prev_link'     => '« Prev',
-    'page_query_string' => true,
+    'page_query_string' => true,          // query string mode
     'query_string_segment' => 'page'
 ]);
 
 
-        $this->pagination->set_theme('default');
+$this->pagination->set_theme('default');
 
-        $this->pagination->initialize(
-            $total_rows,
-            $records_per_page,
-            $page,
-            $base_url
-        );
+$this->pagination->initialize(
+    $total_rows,
+    $records_per_page,
+    $page,
+    $base_url
+);
+
         $data['page'] = $this->pagination->paginate();
 
         $this->call->view('user/index', $data);
