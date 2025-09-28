@@ -10,10 +10,10 @@ class UserController extends Controller {
 }
 
 
-public function index()
+public function index($page = 1)
 {
-    // Current page
-    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    // Current page (path-based segment)
+    $page = (int)$page;
     if ($page < 1) $page = 1;
 
     // Search query
@@ -26,10 +26,10 @@ public function index()
     $data['all'] = $all['records'];
     $total_rows = $all['total_rows'];
 
-    // Base URL (relative path only, without full site URL)
+    // Base URL (relative path, no full URL)
     $base_url = 'user/index';
     if (!empty($q)) {
-        $base_url .= '?q=' . urlencode($q); // preserve search query
+        $base_url .= '?q=' . urlencode($q); // preserve search query in links
     }
 
     // Pagination options
@@ -38,11 +38,10 @@ public function index()
         'last_link'  => 'Last »',
         'next_link'  => 'Next »',
         'prev_link'  => '« Prev',
-        'page_query_string' => true,          // use ?page=2
-        'query_string_segment' => 'page'
+        'page_query_string' => false, // path-based
     ]);
 
-    $this->pagination->set_theme('bootstrap'); // or 'tailwind'
+    $this->pagination->set_theme('bootstrap');
 
     // Initialize pagination
     $this->pagination->initialize(
