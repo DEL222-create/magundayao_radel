@@ -173,13 +173,13 @@ class Pagination
     }
 
 
-   protected function build_link($page, $label, $active_class = '')
-    {
-    // Path-based links
-    $url = site_url($this->page_array['url'] . $this->page_delimiter . $page);
+  protected function build_link($page, $label, $active_class = '')
+{
+    $url = site_url($this->page_array['url'] . '/' . $page);
 
     return '<li class="'.$this->classes['li'].'">
                 <a class="'.$this->classes['a'].' '.$active_class.'" href="'.$url.'">'.$label.'</a>
             </li>';
-    }
+}
+
 }
