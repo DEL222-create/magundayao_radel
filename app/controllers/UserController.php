@@ -3,9 +3,12 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
 class UserController extends Controller {
     public function __construct()
-    {
-        parent::__construct();
-    }
+{
+    parent::__construct();
+    $this->call->model('UserModel');
+    $this->call->library('pagination');
+}
+
 
     public function index()
     {
@@ -22,8 +25,7 @@ class UserController extends Controller {
         $data['all'] = $all['records'];
         $total_rows = $all['total_rows'];
 
-        // Pagination base URL
-       $base_url = site_url('user');
+       $base_url = site_url('user/index');
 if (!empty($q)) {
     $base_url .= '?q=' . urlencode($q);
 }
