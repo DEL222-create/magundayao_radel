@@ -23,16 +23,21 @@ class UserController extends Controller {
         $total_rows = $all['total_rows'];
 
         // Pagination base URL
-        $base_url = site_url('user');
-        $base_url .= !empty($q) ? '?q=' . urlencode($q) . '&page=' : '?page=';
+       $base_url = site_url('user');
+if (!empty($q)) {
+    $base_url .= '?q=' . urlencode($q);
+}
 
-        $this->pagination->set_options([
-            'first_link'     => '⏮ First',
-            'last_link'      => 'Last ⏭',
-            'next_link'      => 'Next →',
-            'prev_link'      => '← Prev',
-            'page_delimiter' => '&page='
-        ]);
+
+       $this->pagination->set_options([
+    'first_link'    => '« First',
+    'last_link'     => 'Last »',
+    'next_link'     => 'Next »',
+    'prev_link'     => '« Prev',
+    'page_query_string' => true,
+    'query_string_segment' => 'page'
+]);
+
 
         $this->pagination->set_theme('default');
 
