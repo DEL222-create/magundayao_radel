@@ -1,103 +1,32 @@
 <?php
 defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
-/**
- * ------------------------------------------------------------------
- * LavaLust - an opensource lightweight PHP MVC Framework
- * ------------------------------------------------------------------
- *
- * MIT License
- *
- * Copyright (c) 2020 Ronald M. Marasigan
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- * @package LavaLust
- * @author Ronald M. Marasigan <ronald.marasigan@yahoo.com>
- * @since Version 4
- * @link https://github.com/ronmarasigan/LavaLust
- * @license https://opensource.org/licenses/MIT MIT License
- */
-/**
- * LavaLust Pagination Class
- *
- * Provides pagination logic and customizable rendering for different frontend styles.
- */
+
 class Pagination
 {
-    /**
-     * @var array Stores pagination metadata (limit, current page, etc.)
-     */
-    protected $page_array = [];
 
-    /**
-     * @var int Current page number
-     */
+    protected $page_array = [];
+    
     protected $page_num;
 
-    /**
-     * @var int Number of rows per page
-     */
+
     protected $rows_per_page;
 
-    /**
-     * @var int Number of page links to show (crumbs)
-     */
+
     protected $crumbs;
 
-    /**
-     * @var array Final output for render
-     */
+    
     protected $pagination;
 
-    /**
-     * @var string Label for "First" page link
-     */
+
     protected $first_link = '&lsaquo; First';
-
-    /**
-     * @var string Label for "Next" page link
-     */
-    protected $next_link = '&gt;';
-
-    /**
-     * @var string Label for "Previous" page link
-     */
-    protected $prev_link = '&lt;';
-
-    /**
-     * @var string Label for "Last" page link
-     */
-    protected $last_link = 'Last &rsaquo;';
-
-    /**
-     * @var string Delimiter used between base URL and page number
-     */
+    protected $next_link  = '&gt;';
+    protected $prev_link  = '&lt;';
+    protected $last_link  = 'Last &rsaquo;';
     protected $page_delimiter = '/';
 
-    /**
-     * @var string Current theme layout: 'bootstrap', 'tailwind', or 'custom'
-     */
+
     protected $theme = 'bootstrap';
 
-    /**
-     * @var array CSS class mappings for HTML generation
-     */
     protected $classes = [
         'nav'    => 'pagination-nav',
         'ul'     => 'pagination-list',
@@ -106,16 +35,13 @@ class Pagination
         'active' => 'active'
     ];
 
-    /**
-     * @var object LavaLust core instance
-     */
+
     protected $LAVA;
 
-    /**
-     * Constructor
-     *
-     * Loads language and session libraries and initializes labels
-     */
+    // Query string mode
+    protected $page_query_string = false;
+    protected $query_string_segment = 'page';
+
     public function __construct()
     {
         $this->LAVA =& lava_instance();
@@ -132,11 +58,7 @@ class Pagination
         $this->set_theme($this->theme);
     }
 
-    /**
-     * Set layout theme
-     *
-     * @param string $theme One of 'bootstrap', 'tailwind', or 'custom'
-     */
+
     public function set_theme($theme)
     {
         $this->theme = $theme;
@@ -160,27 +82,18 @@ class Pagination
                 ];
                 break;
             case 'custom':
-                // Custom classes can be set using set_custom_classes()
+
                 break;
         }
     }
 
-    /**
-     * Override specific CSS classes for layout
-     *
-     * @param array $classes Associative array of class types and values
-     */
+
     public function set_custom_classes(array $classes)
     {
         $this->classes = array_merge($this->classes, $classes);
     }
 
-    /**
-     * Set custom pagination options like links and delimiter.
-     *
-     * @param array $options
-     * @return void
-     */
+
     public function set_options(array $options)
     {
         foreach ($options as $key => $value) {
@@ -190,21 +103,14 @@ class Pagination
         }
     }
 
-    /**
-     * Initialize pagination values and logic
-     *
-     * @param int $total_rows Total number of database rows
-     * @param int $rows_per_page Rows to display per page
-     * @param int $page_num Current page number
-     * @param string $url Base URL for page links
-     * @param int $crumbs Number of visible page links
-     * @return array Metadata for pagination
-     */
+
     public function initialize($total_rows, $rows_per_page, $page_num, $url, $crumbs = 5)
     {
         $this->crumbs = $crumbs;
         $this->rows_per_page = (int) $rows_per_page;
-        $this->page_array['url'] = $url;
+
+        // Store base URL
+        $this->page_array['url'] = preg_replace('#^https?://[^/]+/#i', '', $url);
 
         $last_page = max(1, ceil($total_rows / $this->rows_per_page));
         $this->page_num = max(1, min($page_num, $last_page));
@@ -221,13 +127,7 @@ class Pagination
         return $this->page_array;
     }
 
-    /**
-     * Generate array of page numbers to display
-     *
-     * @param int $page_num Current page
-     * @param int $last_page Last page number
-     * @return array List of visible page numbers
-     */
+
     protected function render_pages($page_num, $last_page)
     {
         $arr = [];
@@ -250,11 +150,7 @@ class Pagination
         return $arr;
     }
 
-    /**
-     * Render the full pagination HTML
-     *
-     * @return string HTML output
-     */
+
     public function paginate()
     {
         if (empty($this->page_array['pages'])) return '';
@@ -276,17 +172,16 @@ class Pagination
         return $html;
     }
 
-    /**
-     * Generate an individual page link
-     *
-     * @param int $page Target page number
-     * @param string $label Link text
-     * @param string $active_class Optional active class
-     * @return string HTML list item with link
-     */
+
     protected function build_link($page, $label, $active_class = '')
     {
-        $url = site_url($this->page_array['url'].$this->page_delimiter.$page);
+        if ($this->page_query_string) {
+            $delimiter = strpos($this->page_array['url'], '?') === false ? '?' : '&';
+            $url = site_url($this->page_array['url'] . $delimiter . $this->query_string_segment . '=' . $page);
+        } else {
+            $url = site_url($this->page_array['url'] . $this->page_delimiter . $page);
+        }
+
         return '<li class="'.$this->classes['li'].'">
                     <a class="'.$this->classes['a'].' '.$active_class.'" href="'.$url.'">'.$label.'</a>
                 </li>';

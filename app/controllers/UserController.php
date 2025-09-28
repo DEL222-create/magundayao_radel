@@ -21,15 +21,15 @@ public function index()
 
     $records_per_page = 5;
 
-    // Get paginated records
+    // Get paginated records from model
     $all = $this->UserModel->page($q, $records_per_page, $page);
     $data['all'] = $all['records'];
     $total_rows = $all['total_rows'];
 
-    // ✅ Base URL (use full site_url for safety)
-    $base_url = site_url('user/index');
+    // Base URL (relative path only, without full site URL)
+    $base_url = 'user/index';
     if (!empty($q)) {
-        $base_url .= '?q=' . urlencode($q);
+        $base_url .= '?q=' . urlencode($q); // preserve search query
     }
 
     // Pagination options
@@ -38,12 +38,13 @@ public function index()
         'last_link'  => 'Last »',
         'next_link'  => 'Next »',
         'prev_link'  => '« Prev',
-        'page_query_string' => true,          // Force query string mode
-        'query_string_segment' => 'page'      // ?page=2
+        'page_query_string' => true,          // use ?page=2
+        'query_string_segment' => 'page'
     ]);
 
-    $this->pagination->set_theme('default');
+    $this->pagination->set_theme('bootstrap'); // or 'tailwind'
 
+    // Initialize pagination
     $this->pagination->initialize(
         $total_rows,
         $records_per_page,
@@ -51,8 +52,10 @@ public function index()
         $base_url
     );
 
+    // Paginate HTML
     $data['page'] = $this->pagination->paginate();
 
+    // Pass data to view
     $this->call->view('user/index', $data);
 }
 
