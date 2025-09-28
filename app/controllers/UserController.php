@@ -10,50 +10,52 @@ class UserController extends Controller {
 }
 
 
-    public function index()
-    {
-        // Current page
-        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+public function index()
+{
+    // Current page
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    if ($page < 1) $page = 1;
 
-        // Search query
-        $q = isset($_GET['q']) ? trim($this->io->get('q')) : '';
+    // Search query
+    $q = isset($_GET['q']) ? trim($this->io->get('q')) : '';
 
-        $records_per_page = 5;
+    $records_per_page = 5;
 
-        // Get paginated records
-        $all = $this->UserModel->page($q, $records_per_page, $page);
-        $data['all'] = $all['records'];
-        $total_rows = $all['total_rows'];
+    // Get paginated records
+    $all = $this->UserModel->page($q, $records_per_page, $page);
+    $data['all'] = $all['records'];
+    $total_rows = $all['total_rows'];
 
-     $base_url = 'user/index';   // wag site_url()
-if (!empty($q)) {
-    $base_url .= '?q=' . urlencode($q);
+    // ✅ Base URL (use full site_url for safety)
+    $base_url = site_url('user/index');
+    if (!empty($q)) {
+        $base_url .= '?q=' . urlencode($q);
+    }
+
+    // Pagination options
+    $this->pagination->set_options([
+        'first_link' => '« First',
+        'last_link'  => 'Last »',
+        'next_link'  => 'Next »',
+        'prev_link'  => '« Prev',
+        'page_query_string' => true,          // Force query string mode
+        'query_string_segment' => 'page'      // ?page=2
+    ]);
+
+    $this->pagination->set_theme('default');
+
+    $this->pagination->initialize(
+        $total_rows,
+        $records_per_page,
+        $page,
+        $base_url
+    );
+
+    $data['page'] = $this->pagination->paginate();
+
+    $this->call->view('user/index', $data);
 }
 
-
-$this->pagination->set_options([
-    'first_link'    => '« First',
-    'last_link'     => 'Last »',
-    'next_link'     => 'Next »',
-    'prev_link'     => '« Prev',
-    'page_query_string' => true,          // query string mode
-    'query_string_segment' => 'page'
-]);
-
-
-$this->pagination->set_theme('default');
-
-$this->pagination->initialize(
-    $total_rows,
-    $records_per_page,
-    $page,
-    $base_url
-);
-
-        $data['page'] = $this->pagination->paginate();
-
-        $this->call->view('user/index', $data);
-    }
 
     public function create()
     {
