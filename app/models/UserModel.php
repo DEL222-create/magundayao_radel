@@ -11,27 +11,21 @@ class UserModel extends Model
         parent::__construct();
     }
 
-    // Pagination with optional search
-   public function page($q = '', $limit = 10, $page = 1)
-{
-    $offset = ($page - 1) * $limit;
+    /**
+     * Paginated user list with optional search
+     */
+    public function page($q = '', $limit = 10, $page = 1)
+    {
+        $offset = ($page - 1) * $limit;
 
-    // COUNT total rows
-    if (!empty($q)) {
-        $this->db->like('username', $q);
+        // Count total rows
+        if (!empty($q)) {
+            $sql = "SELECT COUNT(*) as total FROM {$this->table} WHERE username LIKE :q";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':q' => "%$q%"]);
+        } else {
+            $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+            $stmt = $this->db->query($sql);
+        }
     }
-    $total = $this->db->get($this->table)->num_rows();  // <-- ito na lang gamitin
-
-    // FETCH paginated records
-    if (!empty($q)) {
-        $this->db->like('username', $q);
-    }
-    $this->db->limit($limit, $offset);
-    $records = $this->db->get($this->table)->result_array();
-
-    return [
-        'total_rows' => $total,
-        'records'    => $records
-    ];
-}
 }

@@ -14,13 +14,22 @@ class UserController extends Controller {
         $page = (int)$page;
         if ($page < 1) $page = 1;
 
+        // Search query (optional)
         $q = isset($_GET['q']) ? trim($this->io->get('q')) : '';
 
+        // Limit per page
         $records_per_page = 5;
-        $all = $this->UserModel->page($q, $records_per_page, $page);
-        $data['all'] = $all['records'];
-        $total_rows = $all['total_rows'];
 
+        // Get paginated results from UserModel
+        $all = $this->UserModel->page($q, $records_per_page, $page);
+
+        $data['all'] = $all['records'];
+        $total_rows  = $all['total_rows'];
+
+        // 👇 Important para gumana yung search input sa view
+        $data['q'] = $q;
+
+        // Setup pagination
         $base_url = 'user/index';
         if (!empty($q)) {
             $base_url .= '?q=' . urlencode($q);
@@ -42,6 +51,7 @@ class UserController extends Controller {
             $base_url
         );
 
+        // Pass data to view
         $data['page'] = $this->pagination->paginate();
         $this->call->view('user/index', $data);
     }
@@ -50,11 +60,11 @@ class UserController extends Controller {
     {
         if ($this->io->method() == 'post') {
             $username = $this->io->post('username');
-            $email = $this->io->post('email');
+            $email    = $this->io->post('email');
 
             $data = [
                 'username' => $username,
-                'email' => $email
+                'email'    => $email
             ];
 
             if ($this->UserModel->insert($data)) {
@@ -78,11 +88,11 @@ class UserController extends Controller {
 
         if ($this->io->method() == 'post') {
             $username = $this->io->post('username');
-            $email = $this->io->post('email');
+            $email    = $this->io->post('email');
 
             $data = [
                 'username' => $username,
-                'email' => $email
+                'email'    => $email
             ];
 
             if ($this->UserModel->update($id, $data)) {
