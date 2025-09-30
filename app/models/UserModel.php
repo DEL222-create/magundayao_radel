@@ -1,15 +1,15 @@
 <?php
+defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
-namespace App\Models;
+/**
+ * Modgel: Usermodel
+ * 
+ * Automatically enerated via CLI.
+ */
 
-use CodeIgniter\Model;
-
-class UserModel extends Model
-{
-    protected $table = 'users'; // pangalan ng table mo
-    protected $primaryKey = 'id';
-    protected $allowedFields = ['username', 'password', 'email'];
-
+class UserModel extends Model {
+    protected $table = 'users';
+    protected $primary_key = 'id';
 
     public function __construct()
     {
