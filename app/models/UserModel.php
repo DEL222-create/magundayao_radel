@@ -33,20 +33,7 @@ class UserModel extends Model
         return null;
     }
 
-    /**
-     * Insert new user (plain password, walang email)
-     */
-    public function insertUser(array $data)
-    {
-        $insert = [
-            'username' => $data['username'] ?? null,
-            'password' => $data['password'] ?? null,
-            'role'     => $data['role'] ?? 'user'
-        ];
-
-        return $this->db->table($this->table)->insert($insert);
-    }
-
+    
     /**
      * Paginated list (search only by username)
      */
