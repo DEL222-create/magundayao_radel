@@ -16,13 +16,13 @@ class UserModel extends Model {
     }
 
 
-    public function getUserByUsername($username)
-{
-    return $this->db->table('users')
-                    ->where('username', $username)
-                    ->get();
-}
-
+    public function getUserByUsername($username) {
+        return $this->db->table($this->table)
+                        ->where('username', $username)
+                        ->get()
+                        ->getRowArray();
+    }
+    
     public function page($q = '', $records_per_page = null, $page = null) {
  
             if (is_null($page)) {
