@@ -57,9 +57,10 @@ class UserModel extends Model
         return $this->db->delete($this->table, [$this->primary_key => $id]);
     }
 
-    // Find by ID
-    public function find($id)
+    // Find by ID (compatible with parent Model)
+    public function find($id, $with_deleted = false)
     {
+        // ignore $with_deleted kasi wala kang soft delete
         return $this->db->get_row("SELECT * FROM {$this->table} WHERE {$this->primary_key} = ?", [$id]);
     }
 }
