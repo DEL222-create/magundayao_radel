@@ -12,32 +12,33 @@ class UserModel extends Model
     }
 
     // Pagination + Search
-    public function page($q = '', $limit = 5, $page = 1)
-    {
-        $offset = ($page - 1) * $limit;
+   public function page($q = '', $limit = 5, $page = 1)
+{
+    $offset = ($page - 1) * $limit;
 
-        // COUNT total
-        if (!empty($q)) {
-            $sql = "SELECT COUNT(*) as total FROM {$this->table} WHERE username LIKE ?";
-            $row = $this->db->get_row($sql, ['%' . $q . '%']);
-            $total = $row ? $row['total'] : 0;
+    // COUNT total
+    if (!empty($q)) {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table} WHERE username LIKE ?";
+        $result = $this->db->get_all($sql, ['%' . $q . '%']);
+        $total = isset($result[0]['total']) ? $result[0]['total'] : 0;
 
-            $sql = "SELECT * FROM {$this->table} WHERE username LIKE ? LIMIT {$limit} OFFSET {$offset}";
-            $records = $this->db->get_all($sql, ['%' . $q . '%']);
-        } else {
-            $sql = "SELECT COUNT(*) as total FROM {$this->table}";
-            $row = $this->db->get_row($sql);
-            $total = $row ? $row['total'] : 0;
+        $sql = "SELECT * FROM {$this->table} WHERE username LIKE ? LIMIT {$limit} OFFSET {$offset}";
+        $records = $this->db->get_all($sql, ['%' . $q . '%']);
+    } else {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+        $result = $this->db->get_all($sql);
+        $total = isset($result[0]['total']) ? $result[0]['total'] : 0;
 
-            $sql = "SELECT * FROM {$this->table} LIMIT {$limit} OFFSET {$offset}";
-            $records = $this->db->get_all($sql);
-        }
-
-        return [
-            'records' => $records,
-            'total_rows' => $total
-        ];
+        $sql = "SELECT * FROM {$this->table} LIMIT {$limit} OFFSET {$offset}";
+        $records = $this->db->get_all($sql);
     }
+
+    return [
+        'records' => $records,
+        'total_rows' => $total
+    ];
+}
+
 
     // Insert
     public function insert($data)
