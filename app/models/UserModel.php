@@ -54,15 +54,7 @@ class UserModel extends Model
         ];
     }
 
-    // Find user by ID
-    public function find($id)
-    {
-        return $this->db->table($this->table)
-                        ->where($this->primaryKey, $id)
-                        ->get()
-                        ->row_array();
-    }
-
+    
     // Update user
     public function update($id, $data)
     {
