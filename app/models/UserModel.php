@@ -1,45 +1,81 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
-class UserModel extends CI_Model
+class UserModel extends Model
 {
-    protected $table = 'users';
+    protected $table = 'users';      // table name sa DB
+    protected $primaryKey = 'id';    // primary key
 
     public function __construct()
     {
         parent::__construct();
     }
 
+    // Kunin user base sa username (para sa login)
     public function getUserByUsername($username)
     {
-        return $this->db->where('username', $username)
-                        ->get($this->table)
+        return $this->db->table($this->table)
+                        ->where('username', $username)
+                        ->get()
                         ->row_array();
     }
 
-    public function page($q = '', $records_per_page = null, $page = null) {
- 
-            if (is_null($page)) {
-                return $this->db->table('users')->get_all();
-            } else {
-                $query = $this->db->table('users');
+    // Insert user (register)
+    public function insertUser($data)
+    {
+        return $this->db->table($this->table)->insert($data);
+    }
 
-                // Build LIKE conditions
-                $query->like('id', '%'.$q.'%')
-                    ->or_like('username', '%'.$q.'%')
-                    ->or_like('email', '%'.$q.'%');
-                    
-                // Clone before pagination
-                $countQuery = clone $query;
+    // Kunin lahat ng users (may option sa pagination/search)
+    public function page($q = '', $limit = 10, $page = 1)
+    {
+        $offset = ($page - 1) * $limit;
 
-                $data['total_rows'] = $countQuery->select_count('*', 'count')
-                                                ->get()['count'];
+        $builder = $this->db->table($this->table);
 
-                $data['records'] = $query->pagination($records_per_page, $page)
-                                        ->get_all();
-
-                return $data;
-            }
+        if (!empty($q)) {
+            $builder->like('username', $q);
+            $builder->or_like('email', $q);
         }
 
+        $records = $builder->limit($limit, $offset)->get()->result_array();
+
+        // count total rows
+        $builder2 = $this->db->table($this->table);
+        if (!empty($q)) {
+            $builder2->like('username', $q);
+            $builder2->or_like('email', $q);
+        }
+        $total_rows = $builder2->count_all_results();
+
+        return [
+            'records' => $records,
+            'total_rows' => $total_rows
+        ];
+    }
+
+    // Find user by ID
+    public function find($id)
+    {
+        return $this->db->table($this->table)
+                        ->where($this->primaryKey, $id)
+                        ->get()
+                        ->row_array();
+    }
+
+    // Update user
+    public function update($id, $data)
+    {
+        return $this->db->table($this->table)
+                        ->where($this->primaryKey, $id)
+                        ->update($data);
+    }
+
+    // Delete user
+    public function delete($id)
+    {
+        return $this->db->table($this->table)
+                        ->where($this->primaryKey, $id)
+                        ->delete();
+    }
 }

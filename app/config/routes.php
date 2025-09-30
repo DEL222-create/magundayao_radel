@@ -42,7 +42,7 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 |
 |
 */
-
+$router->get('/', 'AuthController::login');   // default root → login page
 $router->get('/', 'UserController::index');
 $router->get('/user', 'UserController::index');
 $router->get('/user/index', 'UserController::index');       // pagination base
