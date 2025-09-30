@@ -7,6 +7,8 @@ class AuthController extends Controller {
     protected $userModel;
 
     public function __construct() {
+        parent::__construct(); 
+
         $this->userModel = new UserModel(); // instantiate UserModel
 
         if (session_status() == PHP_SESSION_NONE) {
