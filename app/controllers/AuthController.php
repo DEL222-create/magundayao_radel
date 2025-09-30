@@ -1,12 +1,14 @@
 <?php
-defined(constant_name: 'PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
+defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
+
+require_once __DIR__ . '/../models/UserModel.php';
 
 class AuthController extends Controller {
     protected $userModel;
 
     public function __construct() {
-        $this->call->model('UserModel');
-        $this->userModel = new UserModel();
+        $this->userModel = new UserModel(); // instantiate UserModel
+
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
         }
