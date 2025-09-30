@@ -1,3 +1,33 @@
+<?php
+defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
+
+// ✅ Kapag may nagsubmit ng form (POST request)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
+
+    // Load model
+    $this->call->model('UserModel');
+    $user = $this->UserModel->findByUsername($username);
+
+    if ($user && password_verify($password, $user['password'])) {
+        // Save session
+        $_SESSION['user_id']  = $user['id'];
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['role']     = $user['role'];
+
+        // Redirect depende sa role
+        if ($user['role'] === 'admin') {
+            redirect(site_url('user')); // Admin → User List
+        } else {
+            redirect(site_url('auth/dashboard')); // Normal user → Dashboard
+        }
+    } else {
+        $error = "❌ Invalid username or password.";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,6 +63,12 @@
 
   <div class="card">
     <h2 class="text-center text-dark mb-4">USER LOGIN</h2>
+
+    <!-- ✅ Show error message -->
+    <?php if (!empty($error)): ?>
+      <div class="alert alert-danger"><?= $error ?></div>
+    <?php endif; ?>
+
     <form action="<?=site_url('auth/login');?>" method="post">
       <div class="mb-3">
         <label for="username" class="form-label">👤 Username</label>

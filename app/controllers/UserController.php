@@ -3,60 +3,58 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
 class UserController extends Controller {
     public function __construct()
-{
-    parent::__construct();
-    $this->call->model('UserModel');
-    $this->call->library('pagination');
-}
+    {
+        parent::__construct();
+        $this->call->model('UserModel');
+        $this->call->library('pagination');
 
+        // ✅ Require login
+        if (!isset($_SESSION['user_id'])) {
+            redirect(site_url('auth/login'));
+        }
 
-public function index($page = 1)
-{
-    // Current page (path-based segment)
-    $page = (int)$page;
-    if ($page < 1) $page = 1;
-
-    // Search query
-    $q = isset($_GET['q']) ? trim($this->io->get('q')) : '';
-
-    $records_per_page = 5;
-
-    // Get paginated records from model
-    $all = $this->UserModel->page($q, $records_per_page, $page);
-    $data['all'] = $all['records'];
-    $total_rows = $all['total_rows'];
-
-    // Base URL (relative path, no full URL)
-    $base_url = 'user/index';
-    if (!empty($q)) {
-        $base_url .= '?q=' . urlencode($q); // preserve search query in links
+        // ✅ Require admin role
+        if ($_SESSION['role'] !== 'admin') {
+            redirect(site_url('auth/dashboard'));
+        }
     }
 
-    // Pagination options
-    $this->pagination->set_options([
-        'first_link' => '« First',
-        'last_link'  => 'Last »',
-        'next_link'  => 'Next »',
-        'prev_link'  => '« Prev',
-        'page_query_string' => false, // path-based
-    ]);
+    public function index($page = 1)
+    {
+        $page = (int)$page;
+        if ($page < 1) $page = 1;
 
-    $this->pagination->set_theme('bootstrap');
+        $q = isset($_GET['q']) ? trim($this->io->get('q')) : '';
 
-    // Initialize pagination
-    $this->pagination->initialize(
-        $total_rows,
-        $records_per_page,
-        $page,
-        $base_url
-    );
+        $records_per_page = 5;
+        $all = $this->UserModel->page($q, $records_per_page, $page);
+        $data['all'] = $all['records'];
+        $total_rows = $all['total_rows'];
 
-    // Paginate HTML
-    $data['page'] = $this->pagination->paginate();
+        $base_url = 'user/index';
+        if (!empty($q)) {
+            $base_url .= '?q=' . urlencode($q);
+        }
 
-    // Pass data to view
-    $this->call->view('user/index', $data);
-}
+        $this->pagination->set_options([
+            'first_link' => '« First',
+            'last_link'  => 'Last »',
+            'next_link'  => 'Next »',
+            'prev_link'  => '« Prev',
+            'page_query_string' => false,
+        ]);
+
+        $this->pagination->set_theme('bootstrap');
+        $this->pagination->initialize(
+            $total_rows,
+            $records_per_page,
+            $page,
+            $base_url
+        );
+
+        $data['page'] = $this->pagination->paginate();
+        $this->call->view('user/index', $data);
+    }
 
 
     public function create()
