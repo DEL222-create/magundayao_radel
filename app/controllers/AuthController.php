@@ -9,7 +9,7 @@ class AuthController extends Controller
     {
         parent::__construct();
         $this->call->model('UserModel');   // load UserModel
-        $this->userModel = new UserModel();
+        $this->UserModel = new UserModel();
 
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
