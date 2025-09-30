@@ -51,17 +51,20 @@ public function count_all_records($search = '')
 }
 
 // Get paginated records
-public function get_records_with_pagination($limit, $search = '')
+public function get_records_with_pagination($per_page, $offset, $search = '')
 {
-    $offset = $limit['offset'];
-    $per_page = $limit['limit'];
-
     if (!empty($search)) {
-        return $this->db->fetchAll("SELECT * FROM {$this->table} WHERE username LIKE ? LIMIT {$per_page} OFFSET {$offset}", ['%' . $search . '%']);
+        return $this->db->fetchAll(
+            "SELECT * FROM {$this->table} WHERE username LIKE ? LIMIT {$per_page} OFFSET {$offset}",
+            ['%' . $search . '%']
+        );
     } else {
-        return $this->db->fetchAll("SELECT * FROM {$this->table} LIMIT {$per_page} OFFSET {$offset}");
+        return $this->db->fetchAll(
+            "SELECT * FROM {$this->table} LIMIT {$per_page} OFFSET {$offset}"
+        );
     }
 }
+
 
 
     // Insert

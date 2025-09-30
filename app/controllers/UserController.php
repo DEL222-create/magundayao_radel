@@ -52,10 +52,12 @@ class UserController extends Controller {
         );
 
         // Get records
-        $data['users'] = $this->UserModel->get_records_with_pagination(
-            $pagination_data['limit'],
-            $search
-        );
+         $data['users'] = $this->UserModel->get_records_with_pagination(
+         $pagination_data['limit'], 
+         $pagination_data['offset'], 
+         $search
+);
+
 
         $data['pagination_info'] = $pagination_data['info'];
         $data['pagination_html'] = $this->pagination->paginate();
