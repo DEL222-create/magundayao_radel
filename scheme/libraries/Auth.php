@@ -4,17 +4,16 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 class Auth {
     protected $UserModel;
 
-  public function __construct()
-{
-    // Diretso na lang instantiate ng model
-    $this->UserModel = new UserModel();
+    public function __construct()
+    {
+        $this->UserModel = new UserModel();
 
-    if (session_status() == PHP_SESSION_NONE) {
-        session_start();
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
     }
-}
    
-    /** Login check */
+    /** Login check (plain password) */
     public function login($username, $password): bool
     {
         $user = $this->UserModel->db->table('users')
@@ -23,7 +22,8 @@ class Auth {
 
         if ($user->getNumRows() > 0) {
             $row = $user->getRowArray();
-            return password_verify($password, $row['password']);
+            // ✅ plain password check
+            return ($password === $row['password']);
         }
 
         return false;

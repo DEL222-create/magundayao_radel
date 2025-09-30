@@ -9,7 +9,6 @@ class AuthController extends Controller
     {
         parent::__construct();
 
-        // load model file directly (avoid framework helper mismatch)
         require_once __DIR__ . '/../models/UserModel.php';
         $this->UserModel = new UserModel();
 
@@ -21,42 +20,35 @@ class AuthController extends Controller
     // -----------------------
     // LOGIN
     // -----------------------
-  // -----------------------
-// LOGIN
-// -----------------------
-public function login()
-{
-    $data = [];
+    public function login()
+    {
+        $data = [];
 
-    if ($this->io->method() == 'post') {
-        $username = trim($this->io->post('username'));
-        $password = trim($this->io->post('password'));
+        if ($this->io->method() == 'post') {
+            $username = trim($this->io->post('username'));
+            $password = trim($this->io->post('password'));
 
-        $user = $this->UserModel->getUserByUsername($username);
+            $user = $this->UserModel->getUserByUsername($username);
 
-        // plain password check
-        if ($user && isset($user['password']) && $password === $user['password']) {
-            // set session
-            $_SESSION['user_id']  = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['role']     = $user['role'] ?? 'user';
+            // ✅ Plain password check
+            if ($user && isset($user['password']) && $password === $user['password']) {
+                $_SESSION['user_id']  = $user['id'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['role']     = $user['role'] ?? 'user';
 
-            // redirect based on role
-            if ($_SESSION['role'] === 'admin') {
-                redirect(site_url('user')); // admin -> user list
+                if ($_SESSION['role'] === 'admin') {
+                    redirect(site_url('user')); // admin -> user list
+                } else {
+                    redirect(site_url('auth/dashboard'));
+                }
+                return;
             } else {
-                redirect(site_url('auth/dashboard'));
+                $data['error'] = "Invalid username or password.";
             }
-            return;
-        } else {
-            $data['error'] = "Invalid username or password.";
         }
+
+        $this->call->view('auth/login', $data);
     }
-
-    // load view and pass $data (so error message shows)
-    $this->call->view('auth/login', $data);
-}
-
 
     // -----------------------
     // REGISTER
@@ -65,21 +57,18 @@ public function login()
     {
         if ($this->io->method() == 'post') {
             $username = trim($this->io->post('username'));
-            $email    = trim($this->io->post('email'));
             $password = trim($this->io->post('password'));
             $role     = $this->io->post('role') ?? 'user';
 
-            // simple validation (you can expand)
-            if ($username === '' || $email === '' || $password === '') {
+            if ($username === '' || $password === '') {
                 $this->call->view('auth/register', ['error' => 'Please fill all fields.']);
                 return;
             }
 
             $data = [
                 'username' => $username,
-                'email'    => $email,
-                // hash the password before saving
-                'password' => password_hash($password, PASSWORD_DEFAULT),
+                // ✅ plain password (no hashing)
+                'password' => $password,
                 'role'     => $role,
             ];
 

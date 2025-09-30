@@ -3,8 +3,8 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
 class UserModel extends Model
 {
-    protected $table = 'users';      // table name sa DB
-    protected $primary_key = 'id';    // primary key
+    protected $table = 'users';      
+    protected $primary_key = 'id';    
 
     public function __construct()
     {
@@ -13,14 +13,19 @@ class UserModel extends Model
 
     /**
      * Get user by username
-     * Returns assoc array or null
      */
     public function getUserByUsername($username)
     {
         $result = $this->db->table($this->table)
                            ->where('username', $username)
-                           ->get(); // your Database->get returns assoc array or false
+                           ->get();
 
+        // depende sa DB wrapper mo: kung object -> convert to array
+        if ($result && method_exists($result, 'getRowArray')) {
+            return $result->getRowArray();
+        }
+
+        // kung diretso array na ang balik
         if ($result && is_array($result)) {
             return $result;
         }
@@ -29,14 +34,12 @@ class UserModel extends Model
     }
 
     /**
-     * Insert new user
-     * $data must already contain hashed password
+     * Insert new user (plain password, walang email)
      */
     public function insertUser(array $data)
     {
         $insert = [
             'username' => $data['username'] ?? null,
-            'email'    => $data['email'] ?? null,
             'password' => $data['password'] ?? null,
             'role'     => $data['role'] ?? 'user'
         ];
@@ -45,40 +48,37 @@ class UserModel extends Model
     }
 
     /**
-     * Paginated list (used by your controller)
+     * Paginated list (search only by username)
      */
     public function page($q = '', $limit = 5, $page = 1)
     {
         $offset = ($page - 1) * $limit;
 
-        // build query for records
+        // records
         $builder = $this->db->table($this->table);
         if (!empty($q)) {
             $builder->like('username', '%'.$q.'%');
-            $builder->or_like('email', '%'.$q.'%');
         }
         $records = $builder->limit($limit, $offset)->get_all();
 
-        // build query for count
+        // count
         $countBuilder = $this->db->table($this->table);
         if (!empty($q)) {
             $countBuilder->like('username', '%'.$q.'%');
-            $countBuilder->or_like('email', '%'.$q.'%');
         }
 
         try {
             $countRow = $countBuilder->select_count('*', 'count')->get();
-            $total_rows = is_array($countRow) && isset($countRow['count']) ? (int)$countRow['count'] : count($records);
+            $total_rows = (is_array($countRow) && isset($countRow['count'])) 
+                ? (int)$countRow['count'] 
+                : count($records);
         } catch (\Throwable $e) {
-            // fallback
             $total_rows = count($this->db->table($this->table)->get_all());
         }
 
         return [
-            'records' => $records,
+            'records'    => $records,
             'total_rows' => $total_rows
         ];
     }
-
-    // update/delete can use your $this->db wrapper similarly
 }
