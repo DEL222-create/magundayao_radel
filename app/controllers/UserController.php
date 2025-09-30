@@ -7,8 +7,8 @@ class UserController extends Controller {
         parent::__construct();
         $this->call->model('UserModel');
         $this->call->library('pagination');
+
     }
-    
 
     public function index($page = 1)
     {
