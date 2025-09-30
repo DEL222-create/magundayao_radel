@@ -7,111 +7,124 @@ class UserController extends Controller {
         parent::__construct();
         $this->call->model('UserModel');
         $this->call->library('pagination');
+
+        // Custom pagination styles
+        $this->pagination->set_theme('custom');
+        $this->pagination->set_custom_classes([
+            'nav'    => 'flex justify-center mt-6',
+            'ul'     => 'inline-flex space-x-2',
+            'li'     => '',
+            'a'      => 'px-3 py-1 rounded-lg border text-gray-300 hover:bg-gray-700 transition',
+            'active' => 'bg-blue-600 text-white border-blue-600'
+        ]);
     }
 
-   public function index($page = 1)
-{
-    // Current page (path-based segment)
-    $page = (int)$page;
-    if ($page < 1) $page = 1;
+    public function index($page = 1)
+    {
+        $page = max(1, (int)$page);
+        
+        $per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
+        $allowed = [10, 25, 50, 100];
+        if (!in_array($per_page, $allowed)) $per_page = 10;
 
-    // Search query
-    $q = isset($_GET['q']) ? trim($this->io->get('q')) : '';
+        $search = $_GET['search'] ?? '';
 
-    $records_per_page = 5;
+        // Total rows
+        $total_rows = $this->UserModel->count_all_records($search);
 
-    // Get paginated records from model
-    $all = $this->UserModel->page($q, $records_per_page, $page);
-    $data['all'] = $all['records'];
-    $total_rows = $all['total_rows'];
+        // Build query params (para hindi mawala sa pagination)
+        $query_params = [];
+        if (!empty($search)) $query_params['search'] = $search;
+        if ($per_page !== 10) $query_params['per_page'] = $per_page;
 
-    // Base URL (relative path, no full URL)
-    $base_url = 'user/index';
-    if (!empty($q)) {
-        $base_url .= '?q=' . urlencode($q); // preserve search query in links
+        $base_url = 'user/index';
+        if (!empty($query_params)) {
+            $base_url .= '?' . http_build_query($query_params);
+        }
+
+        // Initialize pagination
+        $pagination_data = $this->pagination->initialize(
+            $total_rows,
+            $per_page,
+            $page,
+            $base_url,
+            5
+        );
+
+        // Get records
+        $data['users'] = $this->UserModel->get_records_with_pagination(
+            $pagination_data['limit'],
+            $search
+        );
+
+        $data['pagination_info'] = $pagination_data['info'];
+        $data['pagination_html'] = $this->pagination->paginate();
+
+        $data['search'] = $search;
+        $data['per_page'] = $per_page;
+        $data['current_page'] = $page;
+        $data['total_pages'] = ceil($total_rows / $per_page);
+
+        $this->call->view('users/index', $data);
     }
 
-    // Pagination options
-    $this->pagination->set_options([
-        'first_link' => '« First',
-        'last_link'  => 'Last »',
-        'next_link'  => 'Next »',
-        'prev_link'  => '« Prev',
-        'page_query_string' => false, // path-based
-    ]);
-
-    $this->pagination->set_theme('bootstrap');
-
-    // Initialize pagination
-    $this->pagination->initialize(
-        $total_rows,
-        $records_per_page,
-        $page,
-        $base_url
-    );
-
-    // Paginate HTML
-    $data['page'] = $this->pagination->paginate();
-
-    // Pass data to view
-    $this->call->view('user/index', $data);
-}
     public function create()
     {
-        if ($this->io->method() == 'post') {
-            $username = $this->io->post('username');
-            $email    = $this->io->post('email');
-
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
-                'username' => $username,
-                'email'    => $email
+                'username' => trim($_POST['username']),
+                'email'    => trim($_POST['email']),
+                'password' => password_hash($_POST['password'], PASSWORD_BCRYPT)
             ];
 
-            if ($this->UserModel->insert($data)) {
-                redirect(site_url('user'));
-            } else {
-                echo "Error in creating user.";
-            }
-
-        } else {
-            $this->call->view('user/create');
+            $this->UserModel->insert($data);
+            redirect('/user');
         }
+
+        $this->call->view('users/create');
     }
 
-    public function update($id)
+    public function edit($id)
     {
-        $user = $this->UserModel->find($id);
-        if (!$user) {
-            echo "User not found.";
-            return;
-        }
-
-        if ($this->io->method() == 'post') {
-            $username = $this->io->post('username');
-            $email    = $this->io->post('email');
-
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
-                'username' => $username,
-                'email'    => $email
+                'username' => trim($_POST['username']),
+                'email'    => trim($_POST['email']),
             ];
 
-            if ($this->UserModel->update($id, $data)) {
-                redirect(site_url('user'));
-            } else {
-                echo "Error in updating user.";
+            if (!empty($_POST['password'])) {
+                $data['password'] = password_hash($_POST['password'], PASSWORD_BCRYPT);
             }
-        } else {
-            $data['user'] = $user;
-            $this->call->view('user/update', $data);
+
+            $this->UserModel->update($id, $data);
+            redirect('/user');
         }
+
+        $user = $this->UserModel->find($id);
+        $this->call->view('users/edit', ['user' => $user]);
     }
 
     public function delete($id)
     {
-        if ($this->UserModel->delete($id)) {
-            redirect(site_url('user'));
-        } else {
-            echo "Error in deleting user.";
+        $user = $this->UserModel->find($id);
+        if (!$user) {
+            $_SESSION['error'] = "User not found.";
+            header('Location: /user');
+            exit;
         }
+
+        $deleted = $this->UserModel->delete($id);
+        if ($deleted) {
+            $_SESSION['success'] = "User deleted successfully.";
+        } else {
+            $_SESSION['error'] = "Failed to delete user.";
+        }
+        header('Location: /user');
+        exit;
+    }
+
+    function login()
+    {
+        $this->call->view('users/login');
     }
 }

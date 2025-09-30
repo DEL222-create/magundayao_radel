@@ -39,6 +39,30 @@ class UserModel extends Model
     ];
 }
 
+// Count records (with optional search)
+public function count_all_records($search = '')
+{
+    if (!empty($search)) {
+        $row = $this->db->fetch("SELECT COUNT(*) as total FROM {$this->table} WHERE username LIKE ?", ['%' . $search . '%']);
+    } else {
+        $row = $this->db->fetch("SELECT COUNT(*) as total FROM {$this->table}");
+    }
+    return $row ? $row['total'] : 0;
+}
+
+// Get paginated records
+public function get_records_with_pagination($limit, $search = '')
+{
+    $offset = $limit['offset'];
+    $per_page = $limit['limit'];
+
+    if (!empty($search)) {
+        return $this->db->fetchAll("SELECT * FROM {$this->table} WHERE username LIKE ? LIMIT {$per_page} OFFSET {$offset}", ['%' . $search . '%']);
+    } else {
+        return $this->db->fetchAll("SELECT * FROM {$this->table} LIMIT {$per_page} OFFSET {$offset}");
+    }
+}
+
 
     // Insert
     public function insert($data)
