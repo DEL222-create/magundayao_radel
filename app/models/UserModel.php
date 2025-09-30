@@ -1,27 +1,17 @@
 <?php
-defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
+namespace App\Models;
 
-/**
- * Modgel: Usermodel
- * 
- * Automatically enerated via CLI.
- */
+use CodeIgniter\Model;
 
-class UserModel extends Model {
+class UserModel extends Model
+{
     protected $table = 'users';
-    protected $primary_key = 'id';
+    protected $primaryKey = 'id';
+    protected $allowedFields = ['username', 'password', 'email', 'role'];
 
-    public function __construct()
+    public function getUserByUsername($username)
     {
-        parent::__construct();
-    }
-
-
-    public function getUserByUsername($username) {
-        return $this->db->table($this->table)
-                        ->where('username', $username)
-                        ->get()
-                        ->getRowArray();
+        return $this->where('username', $username)->first();
     }
 
     public function page($q = '', $records_per_page = null, $page = null) {
