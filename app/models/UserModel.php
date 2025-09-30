@@ -13,24 +13,34 @@ class UserModel extends Model
 
     // Pagination with optional search
     public function page($q, $limit, $page)
-    {
-        $offset = ($page - 1) * $limit;
+{
+    $offset = ($page - 1) * $limit;
 
-        // Count total
-        if (!empty($q)) {
-            $this->db->like('username', $q);
-        }
-        $total = $this->db->count_all_results($this->table, false);
-
-        // Reset query for fetching records
-        if (!empty($q)) {
-            $this->db->like('username', $q);
-        }
-        $records = $this->db->get($this->table, $limit, $offset)->result_array();
-
-        return [
-            'total_rows' => $total,
-            'records'    => $records
-        ];
+    // Count total rows (manual query)
+    if (!empty($q)) {
+        $sql = "SELECT COUNT(*) as cnt FROM {$this->table} WHERE username LIKE ?";
+        $bind = ["%$q%"];
+        $total = $this->db->query($sql, $bind)->row_array()['cnt'];
+    } else {
+        $sql = "SELECT COUNT(*) as cnt FROM {$this->table}";
+        $total = $this->db->query($sql)->row_array()['cnt'];
     }
+
+    // Fetch records with limit and offset
+    if (!empty($q)) {
+        $sql = "SELECT * FROM {$this->table} WHERE username LIKE ? LIMIT ? OFFSET ?";
+        $bind = ["%$q%", $limit, $offset];
+        $records = $this->db->query($sql, $bind)->result_array();
+    } else {
+        $sql = "SELECT * FROM {$this->table} LIMIT ? OFFSET ?";
+        $bind = [$limit, $offset];
+        $records = $this->db->query($sql, $bind)->result_array();
+    }
+
+    return [
+        'total_rows' => $total,
+        'records'    => $records
+    ];
+}
+
 }
