@@ -1,17 +1,20 @@
 <?php
-namespace App\Models;
+defined('BASEPATH') OR exit('No direct script access allowed');
 
-use CodeIgniter\Model;
-
-class UserModel extends Model
+class UserModel extends CI_Model
 {
     protected $table = 'users';
-    protected $primaryKey = 'id';
-    protected $allowedFields = ['username', 'password', 'email', 'role'];
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
 
     public function getUserByUsername($username)
     {
-        return $this->where('username', $username)->first();
+        return $this->db->where('username', $username)
+                        ->get($this->table)
+                        ->row_array();
     }
 
     public function page($q = '', $records_per_page = null, $page = null) {
