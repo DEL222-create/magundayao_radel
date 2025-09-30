@@ -3,13 +3,13 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
 class AuthController extends Controller
 {
-    protected $userModel;
+    protected $UserModel;
 
     public function __construct()
     {
         parent::__construct();
-        $this->call->model('UserModel');   // load UserModel
-        $this->UserModel = new UserModel();
+        $this->UserModel = model('UserModel');
+
 
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
