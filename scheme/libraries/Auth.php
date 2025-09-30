@@ -6,7 +6,7 @@ class Auth {
 
     public function __construct()
     {
-        $this->UserModel = model('UserModel'); // access UserModel
+        $this->UserModel = Model('UserModel'); // access UserModel
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
         }
