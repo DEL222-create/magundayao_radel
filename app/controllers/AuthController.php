@@ -25,25 +25,15 @@ class AuthController extends Controller
             $username = trim($this->io->post('username'));
             $password = trim($this->io->post('password'));
 
-            $user = $this->userModel->getUserByUsername($username);
+           $user = $this->UserModel->getUserByUsername($username);
 
-            if ($user && password_verify($password, $user['password'])) {
-                // ✅ Save session
-                $_SESSION['user_id']  = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['role']     = $user['role'];
+        if ($user && password_verify($password, $user['password'])) {
+             // Login successful
+             // set session, redirect sa user list
+        } else {
+             // Invalid username/password
+        }
 
-                // ✅ Redirect depende sa role
-                if ($user['role'] === 'admin') {
-                    redirect(site_url('user'));
-                } else {
-                    redirect(site_url('auth/dashboard'));
-                }
-            } else {
-                $data['error'] = "❌ Invalid username or password.";
-                $this->call->view('auth/login', $data);
-                return;
-            }
         }
 
         $this->call->view('auth/login');
@@ -54,40 +44,35 @@ class AuthController extends Controller
     // -----------------------
     public function register()
     {
-        if ($this->io->method() == 'post') {
-            $username = trim($this->io->post('username'));
-            $password = password_hash(trim($this->io->post('password')), PASSWORD_BCRYPT);
-            $role     = $this->io->post('role');
-
+        if ($this->request->getMethod() === 'post') {
             $data = [
-                'username' => $username,
-                'password' => $password,
-                'role'     => $role
+                'username' => $this->request->getPost('username'),
+                'email'    => $this->request->getPost('email'),
+                'password' => $this->request->getPost('password'),
+                'role'     => $this->request->getPost('role'),
             ];
 
-            if ($this->userModel->insertUser($data)) {
-                redirect(site_url('auth/login'));
-            } else {
-                $data['error'] = "⚠️ Registration failed.";
-                $this->call->view('auth/register', $data);
-                return;
-            }
+            // Save user
+            $this->UserModel->insertUser($data);
+
+            // Redirect to login page or user list
+            return redirect()->to('/auth/login');
         }
 
-        $this->call->view('auth/register');
+        return view('register'); // load register view
     }
 
     // -----------------------
     // DASHBOARD
     // -----------------------
-    public function dashboard()
-    {
-        if (!isset($_SESSION['user_id'])) {
-            redirect(site_url('auth/login'));
-        }
-
-        $this->call->view('auth/dashboard');
+   public function dashboard()
+{
+    if (!isset($_SESSION['user_id'])) {
+        redirect(site_url('auth/login'));
     }
+
+    $this->call->view('auth/dashboard');
+}
 
     // -----------------------
     // LOGOUT

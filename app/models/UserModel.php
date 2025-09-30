@@ -11,20 +11,31 @@ class UserModel extends Model
         parent::__construct();
     }
 
-    // Kunin user base sa username (para sa login)
-    public function getUserByUsername($username)
-    {
-        return $this->db->table($this->table)
-                        ->where('username', $username)
-                        ->get()
-                        ->row_array();
+   public function getUserByUsername($username)
+{
+    $query = $this->db->table($this->users)
+                      ->where('username', $username)
+                      ->get();
+
+    // Check muna kung may result bago i-row_array
+    if ($query->getNumRows() > 0) {
+        return $query->getRowArray();  // tama para isang row
     }
 
+    return null; // walang nakita
+}
+
     // Insert user (register)
-    public function insertUser($data)
-    {
-        return $this->db->table($this->table)->insert($data);
-    }
+   public function insertUser($data)
+{
+    return $this->db->table($this->table)->insert([
+        'username' => $data['username'],
+        'email'    => $data['email'],  
+        'password' => password_hash($data['password'], PASSWORD_DEFAULT),
+        'role'     => $data['role'],
+    ]);
+}
+
 
     // Kunin lahat ng users (may option sa pagination/search)
     public function page($q = '', $limit = 10, $page = 1)
@@ -54,7 +65,7 @@ class UserModel extends Model
         ];
     }
 
-    
+
     // Update user
     public function update($id, $data)
     {
