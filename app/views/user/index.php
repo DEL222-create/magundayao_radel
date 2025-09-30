@@ -6,7 +6,8 @@
     <title>User List</title>
     <!-- Bootstrap CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
+    <a href="<?=site_url('user/create');?>" class="btn btn-primary mb-3">+ Add New User</a>
+   <style>
         body {
             background: linear-gradient(to right, #87CEEB, #1E90FF);
             font-family: Arial, sans-serif;
