@@ -12,30 +12,24 @@ class UserModel extends Model
     }
 
     // Pagination with optional search
-    public function page($q, $limit, $page)
+    public function page($q = '', $limit = 10, $page = 1)
 {
     $offset = ($page - 1) * $limit;
 
-    // Count total rows (manual query)
+    // Count total rows
     if (!empty($q)) {
-        $sql = "SELECT COUNT(*) as cnt FROM {$this->table} WHERE username LIKE ?";
-        $bind = ["%$q%"];
-        $total = $this->db->query($sql, $bind)->row_array()['cnt'];
+        $this->db->like('username', $q);
+        $total = $this->db->get($this->table)->num_rows();
     } else {
-        $sql = "SELECT COUNT(*) as cnt FROM {$this->table}";
-        $total = $this->db->query($sql)->row_array()['cnt'];
+        $total = $this->db->get($this->table)->num_rows();
     }
 
-    // Fetch records with limit and offset
+    // Fetch paginated records
     if (!empty($q)) {
-        $sql = "SELECT * FROM {$this->table} WHERE username LIKE ? LIMIT ? OFFSET ?";
-        $bind = ["%$q%", $limit, $offset];
-        $records = $this->db->query($sql, $bind)->result_array();
-    } else {
-        $sql = "SELECT * FROM {$this->table} LIMIT ? OFFSET ?";
-        $bind = [$limit, $offset];
-        $records = $this->db->query($sql, $bind)->result_array();
+        $this->db->like('username', $q);
     }
+    $this->db->limit($limit, $offset);
+    $records = $this->db->get($this->table)->result_array();
 
     return [
         'total_rows' => $total,
