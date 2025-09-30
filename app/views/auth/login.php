@@ -55,20 +55,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-dark">
+ <nav class="navbar navbar-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="/">🔑 LOGIN</a>
+      <a class="navbar-brand" href="/">🔐 LOGIN</a>
     </div>
   </nav>
 
   <div class="card">
-    <h2 class="text-center text-dark mb-4">USER LOGIN</h2>
-
-    <!-- ✅ Show error message -->
-    <?php if (!empty($error)): ?>
-      <div class="alert alert-danger"><?= $error ?></div>
-    <?php endif; ?>
-
+    <h2 class="text-center text-dark mb-4">SIGN IN</h2>
     <form action="<?=site_url('auth/login');?>" method="post">
       <div class="mb-3">
         <label for="username" class="form-label">👤 Username</label>
@@ -78,9 +72,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label for="password" class="form-label">🔒 Password</label>
         <input type="password" id="password" name="password" class="form-control" required>
       </div>
-      <button type="submit" class="btn btn-primary w-100">✅ Login</button>
+      <button type="submit" class="btn btn-primary w-100">➡️ Login</button>
     </form>
-    <p class="mt-3 text-center">No account yet? <a href="<?=site_url('auth/register');?>">Register</a></p>
+    <p class="mt-3 text-center">Don’t have an account? <a href="<?=site_url('auth/register');?>">Register</a></p>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

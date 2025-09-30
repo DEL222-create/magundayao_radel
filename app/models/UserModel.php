@@ -11,31 +11,26 @@ class UserModel extends Model
         parent::__construct();
     }
 
-   public function getUserByUsername($username)
-{
-    $query = $this->db->table($this->table)   
-                      ->where('username', $username)
-                      ->get();
+  public function getUserByUsername($username)
+    {
+        $builder = $this->db->table($this->table)
+                            ->where('username', $username);
 
+        $query = $builder->get();
 
-    if ($query->getNumRows() > 0) {
-        return $query->getRowArray();
+        if ($query && $query->getNumRows() > 0) {
+            return $query->getRowArray();
+        }
+
+        return null;
     }
-
-    return null;
-}
 
 
     // Insert user (register)
-   public function insertUser($data)
-{
-    return $this->db->table($this->table)->insert([
-        'username' => $data['username'],
-        'email'    => $data['email'],  
-        'password' => password_hash($data['password'], PASSWORD_DEFAULT),
-        'role'     => $data['role'],
-    ]);
-}
+  public function insertUser($data)
+    {
+        return $this->db->table($this->table)->insert($data);
+    }
 
 
     // Kunin lahat ng users (may option sa pagination/search)
