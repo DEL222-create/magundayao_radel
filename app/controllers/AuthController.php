@@ -21,37 +21,42 @@ class AuthController extends Controller
     // -----------------------
     // LOGIN
     // -----------------------
-    public function login()
-    {
-        $data = [];
+  // -----------------------
+// LOGIN
+// -----------------------
+public function login()
+{
+    $data = [];
 
-        if ($this->io->method() == 'post') {
-            $username = trim($this->io->post('username'));
-            $password = trim($this->io->post('password'));
+    if ($this->io->method() == 'post') {
+        $username = trim($this->io->post('username'));
+        $password = trim($this->io->post('password'));
 
-            $user = $this->UserModel->getUserByUsername($username);
+        $user = $this->UserModel->getUserByUsername($username);
 
-            if ($user && isset($user['password']) && password_verify($password, $user['password'])) {
-                // set session
-                $_SESSION['user_id']  = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['role']     = $user['role'] ?? 'user';
+        // plain password check
+        if ($user && isset($user['password']) && $password === $user['password']) {
+            // set session
+            $_SESSION['user_id']  = $user['id'];
+            $_SESSION['username'] = $user['username'];
+            $_SESSION['role']     = $user['role'] ?? 'user';
 
-                // redirect based on role
-                if ($_SESSION['role'] === 'admin') {
-                    redirect(site_url('user')); // admin -> user list
-                } else {
-                    redirect(site_url('auth/dashboard'));
-                }
-                return;
+            // redirect based on role
+            if ($_SESSION['role'] === 'admin') {
+                redirect(site_url('user')); // admin -> user list
             } else {
-                $data['error'] = "Invalid username or password.";
+                redirect(site_url('auth/dashboard'));
             }
+            return;
+        } else {
+            $data['error'] = "Invalid username or password.";
         }
-
-        // load view and pass $data (so error message shows)
-        $this->call->view('auth/login', $data);
     }
+
+    // load view and pass $data (so error message shows)
+    $this->call->view('auth/login', $data);
+}
+
 
     // -----------------------
     // REGISTER
