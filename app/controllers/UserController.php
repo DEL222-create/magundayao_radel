@@ -7,7 +7,6 @@ class UserController extends Controller {
         parent::__construct();
         $this->call->model('UserModel');
         $this->call->library('pagination');
-
     }
 
     public function index($page = 1)
@@ -46,7 +45,6 @@ class UserController extends Controller {
         $data['page'] = $this->pagination->paginate();
         $this->call->view('user/index', $data);
     }
-
 
     public function create()
     {
