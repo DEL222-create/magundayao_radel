@@ -3,13 +3,12 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
 class AuthController extends Controller
 {
-    protected $userModel;
+    protected $UserModel;
 
     public function __construct()
     {
         parent::__construct();
-        // Load UserModel
-        $this->userModel = model('UserModel');
+        $this->UserModel = model('UserModel');
 
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
@@ -25,7 +24,7 @@ class AuthController extends Controller
             $username = trim($this->io->post('username'));
             $password = trim($this->io->post('password'));
 
-            $user = $this->userModel->getUserByUsername($username);
+            $user = $this->UserModel->getUserByUsername($username);
 
             if ($user && password_verify($password, $user['password'])) {
                 // Login successful
@@ -58,7 +57,7 @@ class AuthController extends Controller
             ];
 
             // Save user
-            $this->userModel->insertUser($data);
+            $this->UserModel->insertUser($data);
 
             // Redirect to login page
             redirect(site_url('auth/login'));
