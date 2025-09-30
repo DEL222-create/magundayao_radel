@@ -8,7 +8,9 @@ class AuthController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->UserModel = model('UserModel');
+         $this->call->model('UserModel');
+         $this->UserModel = new UserModel();
+
 
         if (session_status() == PHP_SESSION_NONE) {
             session_start();

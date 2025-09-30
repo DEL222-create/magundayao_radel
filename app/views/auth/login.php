@@ -6,8 +6,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
 
-    // Load Model
-    $this->call->Model('UserModel');
+    // Load model
+    $this->call->model('UserModel');
     $user = $this->UserModel->findByUsername($username);
 
     if ($user && password_verify($password, $user['password'])) {
