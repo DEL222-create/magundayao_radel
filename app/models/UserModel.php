@@ -13,17 +13,18 @@ class UserModel extends Model
 
    public function getUserByUsername($username)
 {
-    $query = $this->db->table($this->users)
+    $query = $this->db->table($this->table)   
                       ->where('username', $username)
                       ->get();
 
-    // Check muna kung may result bago i-row_array
+
     if ($query->getNumRows() > 0) {
-        return $query->getRowArray();  // tama para isang row
+        return $query->getRowArray();
     }
 
-    return null; // walang nakita
+    return null;
 }
+
 
     // Insert user (register)
    public function insertUser($data)

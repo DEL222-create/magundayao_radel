@@ -3,13 +3,13 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
 class AuthController extends Controller
 {
-    protected $UserModel;
+    protected $userModel;
 
     public function __construct()
     {
         parent::__construct();
-        $this->UserModel = model('UserModel');
-
+        // Load UserModel
+        $this->userModel = model('UserModel');
 
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
@@ -25,15 +25,20 @@ class AuthController extends Controller
             $username = trim($this->io->post('username'));
             $password = trim($this->io->post('password'));
 
-           $user = $this->UserModel->getUserByUsername($username);
+            $user = $this->userModel->getUserByUsername($username);
 
-        if ($user && password_verify($password, $user['password'])) {
-             // Login successful
-             // set session, redirect sa user list
-        } else {
-             // Invalid username/password
-        }
+            if ($user && password_verify($password, $user['password'])) {
+                // Login successful
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['role'] = $user['role'];
 
+                redirect(site_url('auth/dashboard'));
+            } else {
+                // Invalid username/password
+                $this->call->view('auth/login', ['error' => 'Invalid username or password.']);
+                return;
+            }
         }
 
         $this->call->view('auth/login');
@@ -44,35 +49,35 @@ class AuthController extends Controller
     // -----------------------
     public function register()
     {
-        if ($this->request->getMethod() === 'post') {
+        if ($this->io->method() == 'post') {
             $data = [
-                'username' => $this->request->getPost('username'),
-                'email'    => $this->request->getPost('email'),
-                'password' => $this->request->getPost('password'),
-                'role'     => $this->request->getPost('role'),
+                'username' => $this->io->post('username'),
+                'email'    => $this->io->post('email'),
+                'password' => $this->io->post('password'),
+                'role'     => $this->io->post('role'),
             ];
 
             // Save user
-            $this->UserModel->insertUser($data);
+            $this->userModel->insertUser($data);
 
-            // Redirect to login page or user list
-            return redirect()->to('/auth/login');
+            // Redirect to login page
+            redirect(site_url('auth/login'));
         }
 
-        return view('register'); // load register view
+        $this->call->view('auth/register');
     }
 
     // -----------------------
     // DASHBOARD
     // -----------------------
-   public function dashboard()
-{
-    if (!isset($_SESSION['user_id'])) {
-        redirect(site_url('auth/login'));
-    }
+    public function dashboard()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            redirect(site_url('auth/login'));
+        }
 
-    $this->call->view('auth/dashboard');
-}
+        $this->call->view('auth/dashboard');
+    }
 
     // -----------------------
     // LOGOUT
