@@ -22,19 +22,27 @@
 
   <div class="card">
     <h2 class="text-center text-dark mb-4">CREATE ACCOUNT</h2>
+
+    <?php if (!empty($error)): ?>
+      <div class="alert alert-danger"><?=html_escape($error)?></div>
+    <?php endif; ?>
+
     <form action="<?=site_url('auth/register');?>" method="post">
       <div class="mb-3">
         <label for="username" class="form-label">👤 Username</label>
         <input type="text" id="username" name="username" class="form-control" required>
       </div>
+
       <div class="mb-3">
         <label for="email" class="form-label">📧 Email</label>
         <input type="email" id="email" name="email" class="form-control" required>
       </div>
+
       <div class="mb-3">
         <label for="password" class="form-label">🔒 Password</label>
         <input type="password" id="password" name="password" class="form-control" required>
       </div>
+
       <div class="mb-3">
         <label for="role" class="form-label">⚡ Role</label>
         <select id="role" name="role" class="form-select">
@@ -42,6 +50,7 @@
           <option value="admin">Admin</option>
         </select>
       </div>
+
       <button type="submit" class="btn btn-primary w-100">✅ Register</button>
     </form>
     <p class="mt-3 text-center">Already have an account? <a href="<?=site_url('auth/login');?>">Login</a></p>

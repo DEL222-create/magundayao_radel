@@ -8,9 +8,10 @@ class AuthController extends Controller
     public function __construct()
     {
         parent::__construct();
-         $this->call->model('UserModel');
-         $this->UserModel = new UserModel();
 
+        // load model file directly (avoid framework helper mismatch)
+        require_once __DIR__ . '/../models/UserModel.php';
+        $this->UserModel = new UserModel();
 
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
@@ -22,27 +23,34 @@ class AuthController extends Controller
     // -----------------------
     public function login()
     {
+        $data = [];
+
         if ($this->io->method() == 'post') {
             $username = trim($this->io->post('username'));
             $password = trim($this->io->post('password'));
 
             $user = $this->UserModel->getUserByUsername($username);
 
-            if ($user && password_verify($password, $user['password'])) {
-                // Login successful
-                $_SESSION['user_id'] = $user['id'];
+            if ($user && isset($user['password']) && password_verify($password, $user['password'])) {
+                // set session
+                $_SESSION['user_id']  = $user['id'];
                 $_SESSION['username'] = $user['username'];
-                $_SESSION['role'] = $user['role'];
+                $_SESSION['role']     = $user['role'] ?? 'user';
 
-                redirect(site_url('auth/dashboard'));
-            } else {
-                // Invalid username/password
-                $this->call->view('auth/login', ['error' => 'Invalid username or password.']);
+                // redirect based on role
+                if ($_SESSION['role'] === 'admin') {
+                    redirect(site_url('user')); // admin -> user list
+                } else {
+                    redirect(site_url('auth/dashboard'));
+                }
                 return;
+            } else {
+                $data['error'] = "Invalid username or password.";
             }
         }
 
-        $this->call->view('auth/login');
+        // load view and pass $data (so error message shows)
+        $this->call->view('auth/login', $data);
     }
 
     // -----------------------
@@ -51,18 +59,29 @@ class AuthController extends Controller
     public function register()
     {
         if ($this->io->method() == 'post') {
+            $username = trim($this->io->post('username'));
+            $email    = trim($this->io->post('email'));
+            $password = trim($this->io->post('password'));
+            $role     = $this->io->post('role') ?? 'user';
+
+            // simple validation (you can expand)
+            if ($username === '' || $email === '' || $password === '') {
+                $this->call->view('auth/register', ['error' => 'Please fill all fields.']);
+                return;
+            }
+
             $data = [
-                'username' => $this->io->post('username'),
-                'email'    => $this->io->post('email'),
-                'password' => $this->io->post('password'),
-                'role'     => $this->io->post('role'),
+                'username' => $username,
+                'email'    => $email,
+                // hash the password before saving
+                'password' => password_hash($password, PASSWORD_DEFAULT),
+                'role'     => $role,
             ];
 
-            // Save user
             $this->UserModel->insertUser($data);
 
-            // Redirect to login page
             redirect(site_url('auth/login'));
+            return;
         }
 
         $this->call->view('auth/register');
