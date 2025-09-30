@@ -3,7 +3,7 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
 class UserModel extends Model
 {
-    protected $table = 'users';
+    protected $table = 'users'; // table name
     protected $primary_key = 'id';
 
     public function __construct()
@@ -11,21 +11,55 @@ class UserModel extends Model
         parent::__construct();
     }
 
-    /**
-     * Paginated user list with optional search
-     */
-    public function page($q = '', $limit = 10, $page = 1)
+    // Pagination + Search
+    public function page($q = '', $limit = 5, $page = 1)
     {
         $offset = ($page - 1) * $limit;
 
-        // Count total rows
+        // COUNT total
         if (!empty($q)) {
-            $sql = "SELECT COUNT(*) as total FROM {$this->table} WHERE username LIKE :q";
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute([':q' => "%$q%"]);
+            $sql = "SELECT COUNT(*) as total FROM {$this->table} WHERE username LIKE ?";
+            $row = $this->db->get_row($sql, ['%' . $q . '%']);
+            $total = $row ? $row['total'] : 0;
+
+            $sql = "SELECT * FROM {$this->table} WHERE username LIKE ? LIMIT {$limit} OFFSET {$offset}";
+            $records = $this->db->get_all($sql, ['%' . $q . '%']);
         } else {
             $sql = "SELECT COUNT(*) as total FROM {$this->table}";
-            $stmt = $this->db->query($sql);
+            $row = $this->db->get_row($sql);
+            $total = $row ? $row['total'] : 0;
+
+            $sql = "SELECT * FROM {$this->table} LIMIT {$limit} OFFSET {$offset}";
+            $records = $this->db->get_all($sql);
         }
+
+        return [
+            'records' => $records,
+            'total_rows' => $total
+        ];
+    }
+
+    // Insert
+    public function insert($data)
+    {
+        return $this->db->insert($this->table, $data);
+    }
+
+    // Update
+    public function update($id, $data)
+    {
+        return $this->db->update($this->table, $data, [$this->primary_key => $id]);
+    }
+
+    // Delete
+    public function delete($id)
+    {
+        return $this->db->delete($this->table, [$this->primary_key => $id]);
+    }
+
+    // Find by ID
+    public function find($id)
+    {
+        return $this->db->get_row("SELECT * FROM {$this->table} WHERE {$this->primary_key} = ?", [$id]);
     }
 }

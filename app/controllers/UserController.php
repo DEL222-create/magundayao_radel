@@ -9,53 +9,53 @@ class UserController extends Controller {
         $this->call->library('pagination');
     }
 
-    public function index($page = 1)
-    {
-        $page = (int)$page;
-        if ($page < 1) $page = 1;
+   public function index($page = 1)
+{
+    // Current page (path-based segment)
+    $page = (int)$page;
+    if ($page < 1) $page = 1;
 
-        // Search query (optional)
-        $q = isset($_GET['q']) ? trim($this->io->get('q')) : '';
+    // Search query
+    $q = isset($_GET['q']) ? trim($this->io->get('q')) : '';
 
-        // Limit per page
-        $records_per_page = 5;
+    $records_per_page = 5;
 
-        // Get paginated results from UserModel
-        $all = $this->UserModel->page($q, $records_per_page, $page);
+    // Get paginated records from model
+    $all = $this->UserModel->page($q, $records_per_page, $page);
+    $data['all'] = $all['records'];
+    $total_rows = $all['total_rows'];
 
-        $data['all'] = $all['records'];
-        $total_rows  = $all['total_rows'];
-
-        // 👇 Important para gumana yung search input sa view
-        $data['q'] = $q;
-
-        // Setup pagination
-        $base_url = 'user/index';
-        if (!empty($q)) {
-            $base_url .= '?q=' . urlencode($q);
-        }
-
-        $this->pagination->set_options([
-            'first_link' => '« First',
-            'last_link'  => 'Last »',
-            'next_link'  => 'Next »',
-            'prev_link'  => '« Prev',
-            'page_query_string' => false,
-        ]);
-
-        $this->pagination->set_theme('bootstrap');
-        $this->pagination->initialize(
-            $total_rows,
-            $records_per_page,
-            $page,
-            $base_url
-        );
-
-        // Pass data to view
-        $data['page'] = $this->pagination->paginate();
-        $this->call->view('user/index', $data);
+    // Base URL (relative path, no full URL)
+    $base_url = 'user/index';
+    if (!empty($q)) {
+        $base_url .= '?q=' . urlencode($q); // preserve search query in links
     }
 
+    // Pagination options
+    $this->pagination->set_options([
+        'first_link' => '« First',
+        'last_link'  => 'Last »',
+        'next_link'  => 'Next »',
+        'prev_link'  => '« Prev',
+        'page_query_string' => false, // path-based
+    ]);
+
+    $this->pagination->set_theme('bootstrap');
+
+    // Initialize pagination
+    $this->pagination->initialize(
+        $total_rows,
+        $records_per_page,
+        $page,
+        $base_url
+    );
+
+    // Paginate HTML
+    $data['page'] = $this->pagination->paginate();
+
+    // Pass data to view
+    $this->call->view('user/index', $data);
+}
     public function create()
     {
         if ($this->io->method() == 'post') {
