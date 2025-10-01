@@ -14,31 +14,31 @@ class UserModel extends Model
     // Get users with pagination
     public function get_records_with_pagination($limit, $offset, $q = '')
     {
-        $this->db->select('*')
-                 ->from($this->table)
-                 ->limit($limit, $offset);
-
         if (!empty($q)) {
-            $this->db->like('username', $q)
-                     ->or_like('email', $q);
+            $sql = "SELECT * FROM {$this->table} 
+                    WHERE username LIKE ? OR email LIKE ? 
+                    LIMIT ? OFFSET ?";
+            return $this->db->get_all($sql, ["%$q%", "%$q%", $limit, $offset]);
+        } else {
+            $sql = "SELECT * FROM {$this->table} 
+                    LIMIT ? OFFSET ?";
+            return $this->db->get_all($sql, [$limit, $offset]);
         }
-
-        return $this->db->get()->result();
     }
 
     // Count total users (for pagination)
     public function count_all_records($q = '')
     {
-        $this->db->select('COUNT(*) as total')
-                 ->from($this->table);
-
         if (!empty($q)) {
-            $this->db->like('username', $q)
-                     ->or_like('email', $q);
+            $sql = "SELECT COUNT(*) as total FROM {$this->table} 
+                    WHERE username LIKE ? OR email LIKE ?";
+            $row = $this->db->fetch($sql, ["%$q%", "%$q%"]);
+        } else {
+            $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+            $row = $this->db->fetch($sql);
         }
 
-        $row = $this->db->get()->row();
-        return $row ? $row->total : 0;
+        return $row ? $row['total'] : 0;
     }
 
     // Find single user
