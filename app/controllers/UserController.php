@@ -70,20 +70,21 @@ class UserController extends Controller {
 
 
     public function create()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'username' => trim($_POST['username']),
-                'email'    => trim($_POST['email']),
-                'password' => password_hash($_POST['password'], PASSWORD_BCRYPT)
-            ];
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $data = [
+            'username' => trim($_POST['username']),
+            'email'    => trim($_POST['email']),
+            'password' => password_hash($_POST['password'], PASSWORD_BCRYPT)
+        ];
 
-            $this->UserModel->insert($data);
-            redirect('/user');
-        }
-
-        $this->call->view('users/create');
+        $this->UserModel->insert($data);
+        redirect('user/index');
     }
+
+    $this->call->view('user/create');
+}
+
 
     public function edit($id)
     {
