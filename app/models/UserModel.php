@@ -14,15 +14,18 @@ class UserModel extends Model
     // Get users with pagination
     public function get_records_with_pagination($limit, $offset, $q = '')
     {
+        $limit = (int) $limit;
+        $offset = (int) $offset;
+
         if (!empty($q)) {
             $sql = "SELECT * FROM {$this->table} 
                     WHERE username LIKE ? OR email LIKE ? 
-                    LIMIT ? OFFSET ?";
-            return $this->db->get_all($sql, ["%$q%", "%$q%", $limit, $offset]);
+                    LIMIT $limit OFFSET $offset";
+            return $this->db->get_all($sql, ["%$q%", "%$q%"]);
         } else {
             $sql = "SELECT * FROM {$this->table} 
-                    LIMIT ? OFFSET ?";
-            return $this->db->get_all($sql, [$limit, $offset]);
+                    LIMIT $limit OFFSET $offset";
+            return $this->db->get_all($sql);
         }
     }
 
