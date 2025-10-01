@@ -42,6 +42,8 @@ class Database
         return self::$instance;
     }
 
+    /** ========== CORE QUERY HELPERS ========== **/
+
     public function query($sql, $params = [])
     {
         $stmt = $this->pdo->prepare($sql);
@@ -49,15 +51,33 @@ class Database
         return $stmt;
     }
 
+    // Fetch single row
     public function fetch($sql, $params = [])
     {
         return $this->query($sql, $params)->fetch();
     }
 
+    // Fetch multiple rows
     public function fetchAll($sql, $params = [])
     {
         return $this->query($sql, $params)->fetchAll();
     }
+
+    /** ========== ALIASES (para sa LavaLust style) ========== **/
+
+    // Alias of fetch
+    public function get_row($sql, $params = [])
+    {
+        return $this->fetch($sql, $params);
+    }
+
+    // Alias of fetchAll
+    public function get_all($sql, $params = [])
+    {
+        return $this->fetchAll($sql, $params);
+    }
+
+    /** ========== CRUD HELPERS ========== **/
 
     public function insert($table, $data)
     {

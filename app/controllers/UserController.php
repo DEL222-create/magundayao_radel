@@ -22,10 +22,13 @@ class UserController extends Controller {
     public function index($page = 1)
     {
         $page = max(1, (int)$page);
-        
+
+        // per page setup
         $per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
         $allowed = [10, 25, 50, 100];
-        if (!in_array($per_page, $allowed)) $per_page = 10;
+        if (!in_array($per_page, $allowed)) {
+            $per_page = 10;
+        }
 
         $search = $_GET['search'] ?? '';
 
@@ -51,19 +54,22 @@ class UserController extends Controller {
             5
         );
 
-        $per_page = $pagination_data['limit'];
+        // ✅ cast to int
+        $per_page = (int)$per_page;
         $offset   = ($page - 1) * $per_page;
 
+        // Get records
         $data['users'] = $this->UserModel->get_records_with_pagination(
-        $per_page,
-        $offset,
-        $search
-);
+            $per_page,
+            $offset,
+            $search
+        );
 
-
+        // pagination info
         $data['pagination_info'] = $pagination_data['info'];
         $data['pagination_html'] = $this->pagination->paginate();
 
+        // extra view data
         $data['search'] = $search;
         $data['per_page'] = $per_page;
         $data['current_page'] = $page;
