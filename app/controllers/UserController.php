@@ -23,11 +23,14 @@ class UserController extends Controller {
         $records = $this->UserModel->get_records_with_pagination($records_per_page, $offset, $q);
         $total_rows = $this->UserModel->count_all_records($q);
 
-        $base_url = site_url('user/index');
+        // Build base_url with query string (para gumana ang search + pagination)
+        $query_params = [];
         if (!empty($q)) {
-            $base_url .= '?q=' . urlencode($q);
+            $query_params['q'] = $q;
         }
+        $base_url = site_url('user/index') . (!empty($query_params) ? '?' . http_build_query($query_params) : '');
 
+        // Setup pagination
         $this->pagination->set_options([
             'first_link' => '« First',
             'last_link'  => 'Last »',
@@ -47,25 +50,24 @@ class UserController extends Controller {
         $this->call->view('user/index', $data);
     }
 
-  public function create()
-{
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $data = [
-            'username' => trim($_POST['username']),
-            'email'    => trim($_POST['email'])
-            // removed password and role
-        ];
+    public function create()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'username' => trim($_POST['username']),
+                'email'    => trim($_POST['email'])
+                // removed password and role
+            ];
 
-        if ($this->UserModel->create_user($data)) {
-            redirect('user/index');
-        } else {
-            $_SESSION['error'] = "Failed to create user.";
+            if ($this->UserModel->create_user($data)) {
+                redirect('user/index');
+            } else {
+                $_SESSION['error'] = "Failed to create user.";
+            }
         }
+
+        $this->call->view('user/create');
     }
-
-    $this->call->view('user/create');
-}
-
 
     public function edit($id)
     {

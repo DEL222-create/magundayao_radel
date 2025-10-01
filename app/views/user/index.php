@@ -3,6 +3,27 @@
 <head>
     <title>User List</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+    <style>
+        /* Custom pagination style */
+        .pagination a, .pagination span {
+            margin: 0 4px;
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #1d4ed8;
+            transition: background 0.2s;
+        }
+        .pagination a:hover {
+            background: #bfdbfe;
+        }
+        .pagination strong {
+            background: #1d4ed8;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+    </style>
 </head>
 <body class="bg-blue-300">
     <div class="container mx-auto mt-10">
@@ -59,7 +80,7 @@
 
             <!-- Pagination -->
             <div class="mt-6 flex justify-center">
-                <div class="pagination">
+                <div class="pagination flex space-x-2">
                     <?= $page; ?>
                 </div>
             </div>
