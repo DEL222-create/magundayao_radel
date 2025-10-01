@@ -15,22 +15,22 @@ class UserModel extends Model
     }
 
     // Get paginated records with optional search
-    public function get_records_with_pagination($limit, $offset, $search = '')
-    {
-        $sql = "SELECT * FROM {$this->table}";
-        $params = [];
+  public function get_records_with_pagination($limit, $offset, $search = '')
+{
+    $sql = "SELECT * FROM {$this->table}";
+    $params = [];
 
-        if (!empty($search)) {
-            $sql .= " WHERE username LIKE ? OR email LIKE ?";
-            $params = ["%$search%", "%$search%"];
-        }
-
-        $sql .= " LIMIT ? OFFSET ?";
-        $params[] = (int)$limit;
-        $params[] = (int)$offset;
-
-        return $this->db->get_all($sql, $params);
+    if (!empty($search)) {
+        $sql .= " WHERE username LIKE ? OR email LIKE ?";
+        $params = ["%$search%", "%$search%"];
     }
+
+    // ✅ FIX: limit/offset directly appended
+    $sql .= " LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+
+    return $this->db->get_all($sql, $params);
+}
+
 
     // Count total users (for pagination)
     public function count_all_records($search = '')
