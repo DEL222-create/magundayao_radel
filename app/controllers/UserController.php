@@ -19,7 +19,7 @@ class UserController extends Controller {
         ]);
     }
 
-   public function index()
+  public function index()
 {
     $this->call->model('UserModel');
     $this->call->library('pagination');
@@ -27,14 +27,14 @@ class UserController extends Controller {
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
     if ($page < 1) $page = 1;
 
-    // fix dito
+    // safe default para hindi mag-undefined key error
     $q = $this->io->get('q') ?: '';
 
     $records_per_page = 5;
 
     $all = $this->UserModel->page($q, $records_per_page, $page);
     $data['all'] = $all['records'];
-    $total_rows = $all['total_rows'];
+    $total_rows  = $all['total_rows'];
 
     $base_url = 'user/index';
     if (!empty($q)) {
@@ -60,10 +60,12 @@ class UserController extends Controller {
     );
 
     $data['page'] = $this->pagination->paginate();
-    $data['q']    = $q; // para safe gamitin sa view
+    $data['q']    = $q; // safe gamitin sa view
 
-    $this->call->view('users/index', $data);
+    // FIXED: correct view path
+    $this->call->view('user/index', $data);
 }
+
 
 
     public function create()
@@ -121,8 +123,4 @@ class UserController extends Controller {
         exit;
     }
 
-    function login()
-    {
-        $this->call->view('users/login');
-    }
 }
