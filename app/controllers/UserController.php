@@ -19,7 +19,7 @@ class UserController extends Controller {
         ]);
     }
 
-    public function index()
+   public function index()
 {
     $this->call->model('UserModel');
     $this->call->library('pagination');
@@ -27,7 +27,9 @@ class UserController extends Controller {
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
     if ($page < 1) $page = 1;
 
-    $q = $this->io->get('q') ?? '';
+    // fix dito
+    $q = $this->io->get('q') ?: '';
+
     $records_per_page = 5;
 
     $all = $this->UserModel->page($q, $records_per_page, $page);
@@ -58,6 +60,7 @@ class UserController extends Controller {
     );
 
     $data['page'] = $this->pagination->paginate();
+    $data['q']    = $q; // para safe gamitin sa view
 
     $this->call->view('users/index', $data);
 }

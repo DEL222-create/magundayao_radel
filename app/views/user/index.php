@@ -10,13 +10,13 @@
             <h1 class="text-2xl font-bold text-center text-blue-800 mb-4">USER LIST</h1>
 
             <!-- Search form -->
-            <form method="get" action="<?= site_url('user/index'); ?>" class="flex justify-center mb-4">
-                <input type="text" name="q" value="<?= htmlspecialchars($q); ?>"
-                       placeholder="Search user..."
-                       class="border rounded-l px-4 py-2 w-1/3" />
-                <button type="submit"
-                        class="bg-blue-500 text-white px-4 py-2 rounded-r">🔍</button>
-            </form>
+        <form method="get" action="<?= site_url('user/index'); ?>" class="flex justify-center mb-4">
+        <input type="text" name="q" value="<?= isset($q) ? htmlspecialchars($q) : '' ?>"
+           placeholder="Search user..."
+           class="border rounded-l px-4 py-2 w-1/3" />
+         <button type="submit"
+            class="bg-blue-500 text-white px-4 py-2 rounded-r">🔍</button>
+        </form>
 
             <!-- Add New User button -->
             <div class="flex justify-center mb-4">
@@ -40,16 +40,13 @@
                     <?php if (!empty($all)): ?>
                         <?php foreach ($all as $user): ?>
                             <tr>
-                                <td class="border px-4 py-2"><?= $user['id']; ?></td>
-                                <td class="border px-4 py-2"><?= htmlspecialchars($user['username']); ?></td>
-                                <td class="border px-4 py-2"><?= htmlspecialchars($user['email']); ?></td>
-                                <td class="border px-4 py-2">
-                                    <a href="<?= site_url('user/edit/'.$user['id']); ?>"
-                                       class="text-blue-600 hover:underline">Edit</a> |
-                                    <a href="<?= site_url('user/delete/'.$user['id']); ?>"
-                                       onclick="return confirm('Are you sure?');"
-                                       class="text-red-600 hover:underline">Delete</a>
-                                </td>
+                            <td class="border px-4 py-2">
+                                <a href="<?= site_url('user/update/'.$user['id']); ?>"
+                                class="text-blue-600 hover:underline">Edit</a> |
+                                <a href="<?= site_url('user/delete/'.$user['id']); ?>"
+                                onclick="return confirm('Are you sure?');"
+                                class="text-red-600 hover:underline">Delete</a>
+                            </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>

@@ -40,13 +40,13 @@
     <!-- Navbar -->
     <nav class="navbar navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">💠CREATE</a>
+            <a class="navbar-brand" href="/">💠 USER LIST 💠</a>
         </div>
     </nav>
 
     <!-- Form Card -->
     <div class="card">
-        <h2 class="text-center text-dark mb-4">CREATE NEW USER</h2>
+        <h2 class="text-center text-dark mb-4">➕ Create New User</h2>
         <form action="<?=site_url('user/create');?>" method="post">
             <div class="mb-3">
                 <label for="username">👤 Username</label>
