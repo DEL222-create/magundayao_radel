@@ -47,25 +47,25 @@ class UserController extends Controller {
         $this->call->view('user/index', $data);
     }
 
-    public function create()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'username' => trim($_POST['username']),
-                'email'    => trim($_POST['email']),
-                'password' => password_hash($_POST['password'], PASSWORD_BCRYPT),
-                'role'     => 'user' // default role
-            ];
+  public function create()
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $data = [
+            'username' => trim($_POST['username']),
+            'email'    => trim($_POST['email'])
+            // removed password and role
+        ];
 
-            if ($this->UserModel->create_user($data)) {
-                redirect('user/index');
-            } else {
-                $_SESSION['error'] = "Failed to create user.";
-            }
+        if ($this->UserModel->create_user($data)) {
+            redirect('user/index');
+        } else {
+            $_SESSION['error'] = "Failed to create user.";
         }
-
-        $this->call->view('user/create');
     }
+
+    $this->call->view('user/create');
+}
+
 
     public function edit($id)
     {

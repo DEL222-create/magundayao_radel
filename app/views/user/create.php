@@ -56,10 +56,6 @@
                 <label for="email">📧 Email</label>
                 <input type="email" id="email" name="email" class="form-control" required>
             </div>
-            <div class="mb-3">
-                <label for="password">🔑 Password</label>
-                <input type="password" id="password" name="password" class="form-control" required>
-            </div>
             <div class="d-flex justify-content-between">
                 <button type="submit" class="btn btn-primary">✅ Create User</button>
                 <a href="<?= site_url('user/index'); ?>" class="btn btn-secondary">↩ Back</a>

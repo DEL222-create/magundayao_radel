@@ -55,18 +55,16 @@ class UserModel extends Model
     }
 
     // Insert new user
-    public function create_user($data)
-    {
-        // ensure valid keys
-        $insertData = [
-            'username' => $data['username'],
-            'email'    => $data['email'],
-            'password' => $data['password'],
-            'role'     => $data['role']
-        ];
+  public function create_user($data)
+{
+    $insertData = [
+        'username' => $data['username'],
+        'email'    => $data['email']
+        // removed password and role
+    ];
 
-        return $this->db->insert($this->table, $insertData);
-    }
+    return $this->db->insert($this->table, $insertData);
+}
 
     // Update user by ID
     public function update($id, $data)
