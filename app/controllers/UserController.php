@@ -44,7 +44,7 @@ class UserController extends Controller {
 $this->pagination->initialize($total_rows, $records_per_page, $page, $base_url);
 
 $data['all']  = $records;
-$data['page'] = $this->pagination->create_links(); 
+$data['page'] = $this->pagination->paginate();
 $data['q']    = $q;
 
 $this->call->view('user/index', $data);
