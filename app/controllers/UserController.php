@@ -64,8 +64,7 @@ class UserController extends Controller {
     $data['page'] = $this->pagination->paginate();
     $data['q']    = $q; // para safe gamitin sa view
 
-    // ✅ ayusin path ng view (dapat plural kasi nasa users/index.php)
-    $this->call->view('users/index', $data);
+   $this->call->view('user/index', $data);
 }
 
 
