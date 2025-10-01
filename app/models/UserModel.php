@@ -11,33 +11,36 @@ class UserModel extends Model
         parent::__construct();
     }
 
-    // Get paginated records with optional search
-  public function get_records_with_pagination($limit, $offset, $q = '')
-{
-    if (!empty($q)) {
-        return $this->db->table($this->table)
-                        ->like('username', $q)
-                        ->or_like('email', $q)
-                        ->limit($limit, $offset)
-                        ->get_all();
-    } else {
-        return $this->db->table($this->table)
-                        ->limit($limit, $offset)
-                        ->get_all();
+    // Get users with pagination
+    public function get_records_with_pagination($limit, $offset, $q = '')
+    {
+        $this->db->select('*')
+                 ->from($this->table)
+                 ->limit($limit, $offset);
+
+        if (!empty($q)) {
+            $this->db->like('username', $q)
+                     ->or_like('email', $q);
+        }
+
+        return $this->db->get()->result();
     }
-}
+
     // Count total users (for pagination)
-   public function count_all_records($q = '')
-{
-    if (!empty($q)) {
-        return $this->db->table($this->table)
-                        ->like('username', $q)
-                        ->or_like('email', $q)
-                        ->count();
-    } else {
-        return $this->db->table($this->table)->count();
+    public function count_all_records($q = '')
+    {
+        $this->db->select('COUNT(*) as total')
+                 ->from($this->table);
+
+        if (!empty($q)) {
+            $this->db->like('username', $q)
+                     ->or_like('email', $q);
+        }
+
+        $row = $this->db->get()->row();
+        return $row ? $row->total : 0;
     }
-}
+
     // Find single user
     public function find($id, $with_deleted = false)
     {
