@@ -19,64 +19,49 @@ class UserController extends Controller {
         ]);
     }
 
-    public function index($page = 1)
-    {
-        $page = max(1, (int)$page);
+    public function index()
+{
+    $this->call->model('UserModel');
+    $this->call->library('pagination');
 
-        // per page setup
-        $per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
-        $allowed = [10, 25, 50, 100];
-        if (!in_array($per_page, $allowed)) {
-            $per_page = 10;
-        }
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    if ($page < 1) $page = 1;
 
-        $search = $_GET['search'] ?? '';
+    $q = $this->io->get('q') ?? '';
+    $records_per_page = 5;
 
-        // Total rows
-        $total_rows = $this->UserModel->count_all_records($search);
+    $all = $this->UserModel->page($q, $records_per_page, $page);
+    $data['all'] = $all['records'];
+    $total_rows = $all['total_rows'];
 
-        // Build query params (para hindi mawala sa pagination)
-        $query_params = [];
-        if (!empty($search)) $query_params['search'] = $search;
-        if ($per_page !== 10) $query_params['per_page'] = $per_page;
-
-        $base_url = 'user/index';
-        if (!empty($query_params)) {
-            $base_url .= '?' . http_build_query($query_params);
-        }
-
-        // Initialize pagination
-        $pagination_data = $this->pagination->initialize(
-            $total_rows,
-            $per_page,
-            $page,
-            $base_url,
-            5
-        );
-
-        // ✅ cast to int
-        $per_page = (int)$per_page;
-        $offset   = ($page - 1) * $per_page;
-
-        // Get records
-        $data['users'] = $this->UserModel->get_records_with_pagination(
-            $per_page,
-            $offset,
-            $search
-        );
-
-        // pagination info
-        $data['pagination_info'] = $pagination_data['info'];
-        $data['pagination_html'] = $this->pagination->paginate();
-
-        // extra view data
-        $data['search'] = $search;
-        $data['per_page'] = $per_page;
-        $data['current_page'] = $page;
-        $data['total_pages'] = ceil($total_rows / $per_page);
-
-        $this->call->view('users/index', $data);
+    $base_url = 'user/index';
+    if (!empty($q)) {
+        $base_url .= '?q=' . urlencode($q);
     }
+
+    $this->pagination->set_options([
+        'first_link' => '« First',
+        'last_link'  => 'Last »',
+        'next_link'  => 'Next »',
+        'prev_link'  => '« Prev',
+        'page_query_string' => true,
+        'query_string_segment' => 'page'
+    ]);
+
+    $this->pagination->set_theme('default');
+
+    $this->pagination->initialize(
+        $total_rows,
+        $records_per_page,
+        $page,
+        $base_url
+    );
+
+    $data['page'] = $this->pagination->paginate();
+
+    $this->call->view('users/index', $data);
+}
+
 
     public function create()
     {
