@@ -8,7 +8,7 @@ class UserController extends Controller {
         $this->call->model('UserModel');
         $this->call->library('pagination');
 
-        // Custom pagination styles
+        // Custom pagination theme (optional)
         $this->pagination->set_theme('custom');
         $this->pagination->set_custom_classes([
             'nav'    => 'flex justify-center mt-6',
@@ -19,72 +19,71 @@ class UserController extends Controller {
         ]);
     }
 
- public function index()
-{
-    $this->call->model('UserModel');
-    $this->call->library('pagination');
+    public function index()
+    {
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        if ($page < 1) $page = 1;
 
-    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    if ($page < 1) $page = 1;
+        // safe handling para walang warning
+        $q = $this->io->get('q') ?? '';
 
-    // safe handling para walang warning
-    $q = $this->io->get('q') ?? '';
+        $records_per_page = 5;
+        $offset = ($page - 1) * $records_per_page;
 
-    $records_per_page = 5;
-    $offset = ($page - 1) * $records_per_page;
+        // kuha records + count
+        $records = $this->UserModel->get_records_with_pagination($records_per_page, $offset, $q);
+        $total_rows = $this->UserModel->count_all_records($q);
 
-    // kuha records + count
-    $records = $this->UserModel->get_records_with_pagination($records_per_page, $offset, $q);
-    $total_rows = $this->UserModel->count_all_records($q);
+        // base url para sa pagination
+        $base_url = site_url('user/index');
+        if (!empty($q)) {
+            $base_url .= '?q=' . urlencode($q);
+        }
 
-    $base_url = 'user/index';
-    if (!empty($q)) {
-        $base_url .= '?q=' . urlencode($q);
+        $this->pagination->set_options([
+            'first_link' => '« First',
+            'last_link'  => 'Last »',
+            'next_link'  => 'Next »',
+            'prev_link'  => '« Prev',
+            'page_query_string' => true,
+            'query_string_segment' => 'page'
+        ]);
+
+        $this->pagination->set_theme('default');
+
+        $this->pagination->initialize(
+            $total_rows,
+            $records_per_page,
+            $page,
+            $base_url
+        );
+
+        $data['all']  = $records;
+        $data['page'] = $this->pagination->paginate();
+        $data['q']    = $q;
+
+        $this->call->view('user/index', $data);
     }
-
-    $this->pagination->set_options([
-        'first_link' => '« First',
-        'last_link'  => 'Last »',
-        'next_link'  => 'Next »',
-        'prev_link'  => '« Prev',
-        'page_query_string' => true,
-        'query_string_segment' => 'page'
-    ]);
-
-    $this->pagination->set_theme('default');
-
-    $this->pagination->initialize(
-        $total_rows,
-        $records_per_page,
-        $page,
-        $base_url
-    );
-
-    $data['all']  = $records;
-    $data['page'] = $this->pagination->paginate();
-    $data['q']    = $q; // para safe gamitin sa view
-
-   $this->call->view('user/index', $data);
-}
-
-
 
     public function create()
-{
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $data = [
-            'username' => trim($_POST['username']),
-            'email'    => trim($_POST['email']),
-            'password' => password_hash($_POST['password'], PASSWORD_BCRYPT)
-        ];
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'username' => trim($_POST['username']),
+                'email'    => trim($_POST['email']),
+                'password' => password_hash($_POST['password'], PASSWORD_BCRYPT),
+                'role'     => 'user' // default role kapag walang pinili
+            ];
 
-        $this->UserModel->insert($data);
-        redirect('user/index');
+            if ($this->UserModel->insert($data)) {
+                redirect('user/index'); // balik sa user list
+            } else {
+                $_SESSION['error'] = "Failed to create user.";
+            }
+        }
+
+        $this->call->view('user/create');
     }
-
-    $this->call->view('user/create');
-}
-
 
     public function edit($id)
     {
@@ -99,11 +98,11 @@ class UserController extends Controller {
             }
 
             $this->UserModel->update($id, $data);
-            redirect('/user');
+            redirect('user/index');
         }
 
         $user = $this->UserModel->find($id);
-        $this->call->view('users/edit', ['user' => $user]);
+        $this->call->view('user/edit', ['user' => $user]);
     }
 
     public function delete($id)
@@ -111,8 +110,7 @@ class UserController extends Controller {
         $user = $this->UserModel->find($id);
         if (!$user) {
             $_SESSION['error'] = "User not found.";
-            header('Location: /user');
-            exit;
+            redirect('user/index');
         }
 
         $deleted = $this->UserModel->delete($id);
@@ -121,8 +119,6 @@ class UserController extends Controller {
         } else {
             $_SESSION['error'] = "Failed to delete user.";
         }
-        header('Location: /user');
-        exit;
+        redirect('user/index');
     }
-
 }
