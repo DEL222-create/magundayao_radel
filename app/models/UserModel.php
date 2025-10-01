@@ -12,35 +12,32 @@ class UserModel extends Model
     }
 
     // Get paginated records with optional search
-    public function get_records_with_pagination($limit, $offset, $search = '')
-    {
-        $sql = "SELECT * FROM {$this->table}";
-        $params = [];
-
-        if (!empty($search)) {
-            $sql .= " WHERE username LIKE ? OR email LIKE ?";
-            $params = ["%$search%", "%$search%"];
-        }
-
-        $sql .= " LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
-        return $this->db->get_all($sql, $params);
+  public function get_records_with_pagination($limit, $offset, $q = '')
+{
+    if (!empty($q)) {
+        return $this->db->table($this->table)
+                        ->like('username', $q)
+                        ->or_like('email', $q)
+                        ->limit($limit, $offset)
+                        ->get_all();
+    } else {
+        return $this->db->table($this->table)
+                        ->limit($limit, $offset)
+                        ->get_all();
     }
-
+}
     // Count total users (for pagination)
-    public function count_all_records($search = '')
-    {
-        $sql = "SELECT COUNT(*) as total FROM {$this->table}";
-        $params = [];
-
-        if (!empty($search)) {
-            $sql .= " WHERE username LIKE ? OR email LIKE ?";
-            $params = ["%$search%", "%$search%"];
-        }
-
-        $row = $this->db->get_row($sql, $params);
-        return $row ? $row['total'] : 0;
+   public function count_all_records($q = '')
+{
+    if (!empty($q)) {
+        return $this->db->table($this->table)
+                        ->like('username', $q)
+                        ->or_like('email', $q)
+                        ->count();
+    } else {
+        return $this->db->table($this->table)->count();
     }
-
+}
     // Find single user
     public function find($id, $with_deleted = false)
     {

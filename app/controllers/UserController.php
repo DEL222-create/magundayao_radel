@@ -31,23 +31,23 @@ class UserController extends Controller {
         $base_url = site_url('user/index') . (!empty($query_params) ? '?' . http_build_query($query_params) : '');
 
         // Setup pagination
-        $this->pagination->set_options([
-            'first_link' => '« First',
-            'last_link'  => 'Last »',
-            'next_link'  => 'Next »',
-            'prev_link'  => '« Prev',
-            'page_query_string' => true,
-            'query_string_segment' => 'page'
-        ]);
+      $this->pagination->set_options([
+    'first_link' => '« First',
+    'last_link'  => 'Last »',
+    'next_link'  => 'Next »',
+    'prev_link'  => '« Prev',
+    'page_query_string' => true,
+    'query_string_segment' => 'page',
+    'use_page_numbers' => true
+]);
 
-        $this->pagination->set_theme('default');
-        $this->pagination->initialize($total_rows, $records_per_page, $page, $base_url);
+$this->pagination->initialize($total_rows, $records_per_page, $page, $base_url);
 
-        $data['all']  = $records;
-        $data['page'] = $this->pagination->paginate();
-        $data['q']    = $q;
+$data['all']  = $records;
+$data['page'] = $this->pagination->create_links(); 
+$data['q']    = $q;
 
-        $this->call->view('user/index', $data);
+$this->call->view('user/index', $data);
     }
 
     public function create()

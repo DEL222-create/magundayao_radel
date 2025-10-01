@@ -79,12 +79,30 @@
             </table>
 
             <!-- Pagination -->
-            <div class="mt-6 flex justify-center">
-                <div class="pagination flex space-x-2">
-                    <?= $page; ?>
-                </div>
-            </div>
-        </div>
+<div class="mt-6 flex justify-center">
+    <div class="pagination flex space-x-2">
+        <?= $page; ?>
     </div>
+</div>
+
+<style>
+    .pagination a, .pagination strong {
+        margin: 0 4px;
+        padding: 6px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        text-decoration: none;
+        color: #1d4ed8;
+        transition: background 0.2s;
+    }
+    .pagination a:hover {
+        background: #bfdbfe;
+    }
+    .pagination strong {
+        background: #1d4ed8;
+        color: white;
+    }
+</style>
+
 </body>
 </html>
