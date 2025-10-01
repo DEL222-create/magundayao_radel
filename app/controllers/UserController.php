@@ -35,55 +35,52 @@ class UserController extends Controller {
         $total_rows = $this->UserModel->count_all_records($q);
 
         // base url para sa pagination
-        $base_url = site_url('user/index');
-        if (!empty($q)) {
-            $base_url .= '?q=' . urlencode($q);
-        }
-
+        $base_url = site_url('user/index');  // ito tama
         $this->pagination->set_options([
-            'first_link' => '« First',
-            'last_link'  => 'Last »',
-            'next_link'  => 'Next »',
-            'prev_link'  => '« Prev',
-            'page_query_string' => true,
-            'query_string_segment' => 'page'
-        ]);
+                 'first_link' => '« First',
+                  'last_link'  => 'Last »',
+                 'next_link'  => 'Next »',
+                  'prev_link'  => '« Prev',
+                 'page_query_string' => true,
+                 'query_string_segment' => 'page'
+                ]);
 
-        $this->pagination->set_theme('default');
+        // wag nang override ng theme dito, naka-set ka na sa constructor
+            $this->pagination->initialize(
+                 $total_rows,
+                 $records_per_page,
+                $page,
+                 $base_url
+                );
 
-        $this->pagination->initialize(
-            $total_rows,
-            $records_per_page,
-            $page,
-            $base_url
-        );
+                $data['all']  = $records;
+                $data['page'] = $this->pagination->paginate();
+                $data['q']    = $q;
 
-        $data['all']  = $records;
-        $data['page'] = $this->pagination->paginate();
-        $data['q']    = $q;
+                $this->call->view('user/index', $data);
 
-        $this->call->view('user/index', $data);
     }
+    
+   public function create()
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $data = [
+            'username' => trim($_POST['username']),
+            'email'    => trim($_POST['email']),
+            'password' => password_hash($_POST['password'], PASSWORD_BCRYPT), // column matches table
+            'role'     => 'user'
+        ];
 
-    public function create()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'username' => trim($_POST['username']),
-                'email'    => trim($_POST['email']),
-                'password' => password_hash($_POST['password'], PASSWORD_BCRYPT),
-                'role'     => 'user' // default role kapag walang pinili
-            ];
-
-            if ($this->UserModel->insert($data)) {
-                redirect('user/index'); // balik sa user list
-            } else {
-                $_SESSION['error'] = "Failed to create user.";
-            }
+        // gamitin mo insertUser() para clear
+        if ($this->UserModel->insertUser($data)) {
+            redirect('user/index');
+        } else {
+            $_SESSION['error'] = "Failed to create user.";
         }
-
-        $this->call->view('user/create');
     }
+
+    $this->call->view('user/create');
+}
 
     public function edit($id)
     {

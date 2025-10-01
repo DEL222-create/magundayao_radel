@@ -14,25 +14,23 @@ class UserModel extends Model
         parent::__construct();
     }
 
-    // Get paginated records with optional search
-  public function get_records_with_pagination($limit, $offset, $search = '')
-{
-    $sql = "SELECT * FROM {$this->table}";
-    $params = [];
+    // ✅ Get paginated records with optional search
+    public function get_records_with_pagination($limit, $offset, $search = '')
+    {
+        $sql = "SELECT * FROM {$this->table}";
+        $params = [];
 
-    if (!empty($search)) {
-        $sql .= " WHERE username LIKE ? OR email LIKE ?";
-        $params = ["%$search%", "%$search%"];
+        if (!empty($search)) {
+            $sql .= " WHERE username LIKE ? OR email LIKE ?";
+            $params = ["%$search%", "%$search%"];
+        }
+
+        $sql .= " LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+
+        return $this->db->get_all($sql, $params);
     }
 
-    // ✅ FIX: limit/offset directly appended
-    $sql .= " LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
-
-    return $this->db->get_all($sql, $params);
-}
-
-
-    // Count total users (for pagination)
+    // ✅ Count total users (for pagination)
     public function count_all_records($search = '')
     {
         $sql = "SELECT COUNT(*) as total FROM {$this->table}";
@@ -47,7 +45,7 @@ class UserModel extends Model
         return $row ? $row['total'] : 0;
     }
 
-    // Find single user by primary key (fix compatibility)
+    // ✅ Find single user by primary key
     public function find($id, $with_deleted = false)
     {
         $sql = "SELECT * FROM {$this->table} WHERE {$this->primary_key} = ?";
@@ -60,19 +58,26 @@ class UserModel extends Model
         return $this->db->get_row($sql, $params);
     }
 
-    // Insert new user
-    public function insert($data)
+    // ✅ Insert new user (cleaned to match columns)
+    public function insertUser($data)
     {
-        return $this->db->insert($this->table, $data);
+        $allowed = ['username', 'email', 'password', 'role'];
+        $clean = [];
+        foreach ($allowed as $col) {
+            if (isset($data[$col])) {
+                $clean[$col] = $data[$col];
+            }
+        }
+        return $this->db->insert($this->table, $clean);
     }
 
-    // Update user by ID
+    // ✅ Update user by ID
     public function update($id, $data)
     {
         return $this->db->update($this->table, $data, [$this->primary_key => $id]);
     }
 
-    // Delete user by ID
+    // ✅ Delete user by ID
     public function delete($id)
     {
         return $this->db->delete($this->table, [$this->primary_key => $id]);
