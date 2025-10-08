@@ -84,6 +84,10 @@
         <?= $page; ?>
     </div>
 </div>
+    <a href="<?= site_url('auth/logout'); ?>" 
+     class="btn-logout" onclick="return confirm('Are you sure you want to log out?');">
+     Logout</a>
+    </a>
 
 <style>
     .pagination a, .pagination strong {
