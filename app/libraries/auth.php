@@ -27,7 +27,7 @@ class Auth
     return $this->db->insert('users', [
         'username' => $username,
         'password' => $hash,
-        'role' => $role,
+        'role' => $role
     ]);
 }
 
