@@ -7,15 +7,13 @@ class UserController extends Controller {
         parent::__construct();
         $this->call->model('UserModel');
         $this->call->library('pagination');
-<<<<<<< HEAD
+
         $this->call->library('auth');
 
         if (!$this->auth->is_logged_in()) {
             redirect('auth/login');
             exit;
         }
-=======
->>>>>>> 73b126847d3f3f4da1f228fb3c0258a5da927254
     }
 
     public function index()
