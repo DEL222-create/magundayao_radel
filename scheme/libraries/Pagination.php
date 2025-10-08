@@ -3,9 +3,8 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
 class Pagination
 {
-
     protected $page_array = [];
-    
+
     protected $page_num;
 
 
@@ -24,9 +23,7 @@ class Pagination
     protected $last_link  = 'Last &rsaquo;';
     protected $page_delimiter = '/';
 
-
     protected $theme = 'bootstrap';
-
     protected $classes = [
         'nav'    => 'pagination-nav',
         'ul'     => 'pagination-list',
@@ -82,7 +79,6 @@ class Pagination
                 ];
                 break;
             case 'custom':
-
                 break;
         }
     }
@@ -149,7 +145,7 @@ class Pagination
         }
         return $arr;
     }
-
+    
 
     public function paginate()
     {
@@ -172,10 +168,10 @@ class Pagination
         return $html;
     }
 
-
   protected function build_link($page, $label, $active_class = '')
 {
-    $url = site_url($this->page_array['url'] . '/' . $page);
+    // Path-based links
+    $url = site_url($this->page_array['url'] . $this->page_delimiter . $page);
 
     return '<li class="'.$this->classes['li'].'">
                 <a class="'.$this->classes['a'].' '.$active_class.'" href="'.$url.'">'.$label.'</a>

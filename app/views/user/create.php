@@ -40,14 +40,14 @@
     <!-- Navbar -->
     <nav class="navbar navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">💠CREATE</a>
+            <a class="navbar-brand" href="<?= site_url('user/index'); ?>">💠 USER LIST 💠</a>
         </div>
     </nav>
 
     <!-- Form Card -->
     <div class="card">
-        <h2 class="text-center text-dark mb-4">CREATE NEW USER</h2>
-        <form action="<?=site_url('user/create');?>" method="post">
+        <h2 class="text-center text-dark mb-4">➕ Create New User</h2>
+        <form action="<?= site_url('user/create'); ?>" method="post">
             <div class="mb-3">
                 <label for="username">👤 Username</label>
                 <input type="text" id="username" name="username" class="form-control" required>
@@ -58,7 +58,7 @@
             </div>
             <div class="d-flex justify-content-between">
                 <button type="submit" class="btn btn-primary">✅ Create User</button>
-                <a href="/" class="btn btn-secondary">↩ Back</a>
+                <a href="<?= site_url('user/index'); ?>" class="btn btn-secondary">↩ Back</a>
             </div>
         </form>
     </div>

@@ -40,13 +40,13 @@
     <!-- Navbar -->
     <nav class="navbar navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">💠UPDATE</a>
+            <a class="navbar-brand" href="/">💠 Blue User System</a>
         </div>
     </nav>
 
     <!-- Update Form -->
     <div class="card">
-        <h2 class="text-center text-dark mb-4">UPDATE USER</h2>
+        <h2 class="text-center text-dark mb-4">✏️ Update User</h2>
         <form action="<?=site_url('user/update/'. $user['id']);?>" method="post">
             <div class="mb-3">
                 <label for="username">👤 Username</label>

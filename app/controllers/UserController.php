@@ -7,109 +7,117 @@ class UserController extends Controller {
         parent::__construct();
         $this->call->model('UserModel');
         $this->call->library('pagination');
+<<<<<<< HEAD
         $this->call->library('auth');
 
         if (!$this->auth->is_logged_in()) {
             redirect('auth/login');
             exit;
         }
+=======
+>>>>>>> 73b126847d3f3f4da1f228fb3c0258a5da927254
     }
 
-    public function index($page = 1)
+    public function index()
     {
-        $page = (int)$page;
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         if ($page < 1) $page = 1;
 
-        $q = isset($_GET['q']) ? trim($this->io->get('q')) : '';
+        $q = $this->io->get('q') ?? '';
 
         $records_per_page = 5;
-        $all = $this->UserModel->page($q, $records_per_page, $page);
-        $data['all'] = $all['records'];
-        $total_rows = $all['total_rows'];
+        $offset = ($page - 1) * $records_per_page;
 
-        $base_url = 'user/index';
+        // get records + count
+        $records = $this->UserModel->get_records_with_pagination($records_per_page, $offset, $q);
+        $total_rows = $this->UserModel->count_all_records($q);
+
+        // Build base_url with query string (para gumana ang search + pagination)
+        $query_params = [];
         if (!empty($q)) {
-            $base_url .= '?q=' . urlencode($q);
+            $query_params['q'] = $q;
         }
+        $base_url = site_url('user/index') . (!empty($query_params) ? '?' . http_build_query($query_params) : '');
 
-        $this->pagination->set_options([
-            'first_link' => '« First',
-            'last_link'  => 'Last »',
-            'next_link'  => 'Next »',
-            'prev_link'  => '« Prev',
-            'page_query_string' => false,
-        ]);
+        // Setup pagination
+      $this->pagination->set_options([
+    'first_link' => '« First',
+    'last_link'  => 'Last »',
+    'next_link'  => 'Next »',
+    'prev_link'  => '« Prev',
+    'page_query_string' => true,
+    'query_string_segment' => 'page',
+    'use_page_numbers' => true
+]);
 
-        $this->pagination->set_theme('bootstrap');
-        $this->pagination->initialize(
-            $total_rows,
-            $records_per_page,
-            $page,
-            $base_url
-        );
+$this->pagination->initialize($total_rows, $records_per_page, $page, $base_url);
 
+<<<<<<< HEAD
         $data['page'] = $this->pagination->paginate();
         $data['auth'] = $this->auth;
         $this->call->view('user/index', $data);
-    }
+=======
+$data['all']  = $records;
+$data['page'] = $this->pagination->paginate();
+$data['q']    = $q;
 
+$this->call->view('user/index', $data);
+>>>>>>> 73b126847d3f3f4da1f228fb3c0258a5da927254
+    }
 
     public function create()
     {
-        if ($this->io->method() == 'post') {
-            $username = $this->io->post('username');
-            $email = $this->io->post('email');
-
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
-                'username' => $username,
-                'email' => $email
+                'username' => trim($_POST['username']),
+                'email'    => trim($_POST['email'])
+                // removed password and role
             ];
 
-            if ($this->UserModel->insert($data)) {
-                redirect(site_url('user'));
+            if ($this->UserModel->create_user($data)) {
+                redirect('user/index');
             } else {
-                echo "Error in creating user.";
+                $_SESSION['error'] = "Failed to create user.";
             }
-
-        } else {
-            $this->call->view('user/create');
         }
+
+        $this->call->view('user/create');
     }
 
-    public function update($id)
+    public function edit($id)
     {
-        $user = $this->UserModel->find($id);
-        if (!$user) {
-            echo "User not found.";
-            return;
-        }
-
-        if ($this->io->method() == 'post') {
-            $username = $this->io->post('username');
-            $email = $this->io->post('email');
-
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
-                'username' => $username,
-                'email' => $email
+                'username' => trim($_POST['username']),
+                'email'    => trim($_POST['email']),
             ];
 
-            if ($this->UserModel->update($id, $data)) {
-                redirect(site_url('user'));
-            } else {
-                echo "Error in updating user.";
+            if (!empty($_POST['password'])) {
+                $data['password'] = password_hash($_POST['password'], PASSWORD_BCRYPT);
             }
-        } else {
-            $data['user'] = $user;
-            $this->call->view('user/update', $data);
+
+            $this->UserModel->update($id, $data);
+            redirect('user/index');
         }
+
+        $user = $this->UserModel->find($id);
+        $this->call->view('user/edit', ['user' => $user]);
     }
 
     public function delete($id)
     {
-        if ($this->UserModel->delete($id)) {
-            redirect(site_url('user'));
-        } else {
-            echo "Error in deleting user.";
+        $user = $this->UserModel->find($id);
+        if (!$user) {
+            $_SESSION['error'] = "User not found.";
+            redirect('user/index');
         }
+
+        $deleted = $this->UserModel->delete($id);
+        if ($deleted) {
+            $_SESSION['success'] = "User deleted successfully.";
+        } else {
+            $_SESSION['error'] = "Failed to delete user.";
+        }
+        redirect('user/index');
     }
 }

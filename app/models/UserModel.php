@@ -3,8 +3,8 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
 class UserModel extends Model
 {
-    protected $table = 'users';      
-    protected $primary_key = 'id';    
+    protected $table = 'users';
+    protected $primary_key = 'id';
 
     public function __construct()
     {
@@ -22,74 +22,73 @@ class UserModel extends Model
             return $this->db->table($this->table)->get_all();
         }
 
-    /**
-     * Get user by username
-     */
-    public function getUserByUsername($username)
+    // Get users with pagination
+    public function get_records_with_pagination($limit, $offset, $q = '')
     {
-        $result = $this->db->table($this->table)
-                           ->where('username', $username)
-                           ->get();
+        $limit = (int) $limit;
+        $offset = (int) $offset;
 
-        // depende sa DB wrapper mo: kung object -> convert to array
-        if ($result && method_exists($result, 'getRowArray')) {
-            return $result->getRowArray();
+        if (!empty($q)) {
+            $sql = "SELECT * FROM {$this->table} 
+                    WHERE username LIKE ? OR email LIKE ? 
+                    LIMIT $limit OFFSET $offset";
+            return $this->db->get_all($sql, ["%$q%", "%$q%"]);
+        } else {
+            $sql = "SELECT * FROM {$this->table} 
+                    LIMIT $limit OFFSET $offset";
+            return $this->db->get_all($sql);
         }
-
-        // kung diretso array na ang balik
-        if ($result && is_array($result)) {
-            return $result;
-        }
-
-        return null;
     }
 
-    /**
-     * Insert new user (plain password, walang email)
-     */
-    public function insertUser(array $data)
+    // Count total users (for pagination)
+    public function count_all_records($q = '')
     {
-        $insert = [
-            'username' => $data['username'] ?? null,
-            'password' => $data['password'] ?? null,
-            'role'     => $data['role'] ?? 'user'
-        ];
+        if (!empty($q)) {
+            $sql = "SELECT COUNT(*) as total FROM {$this->table} 
+                    WHERE username LIKE ? OR email LIKE ?";
+            $row = $this->db->fetch($sql, ["%$q%", "%$q%"]);
+        } else {
+            $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+            $row = $this->db->fetch($sql);
+        }
 
-        return $this->db->table($this->table)->insert($insert);
+        return $row ? $row['total'] : 0;
     }
 
-    /**
-     * Paginated list (search only by username)
-     */
-    public function page($q = '', $limit = 5, $page = 1)
+    // Find single user
+    public function find($id, $with_deleted = false)
     {
-        $offset = ($page - 1) * $limit;
+        $sql = "SELECT * FROM {$this->table} WHERE {$this->primary_key} = ?";
+        $params = [$id];
 
-        // records
-        $builder = $this->db->table($this->table);
-        if (!empty($q)) {
-            $builder->like('username', '%'.$q.'%');
-        }
-        $records = $builder->limit($limit, $offset)->get_all();
-
-        // count
-        $countBuilder = $this->db->table($this->table);
-        if (!empty($q)) {
-            $countBuilder->like('username', '%'.$q.'%');
+        if (!$with_deleted && property_exists($this, 'deleted_field')) {
+            $sql .= " AND {$this->deleted_field} IS NULL";
         }
 
-        try {
-            $countRow = $countBuilder->select_count('*', 'count')->get();
-            $total_rows = (is_array($countRow) && isset($countRow['count'])) 
-                ? (int)$countRow['count'] 
-                : count($records);
-        } catch (\Throwable $e) {
-            $total_rows = count($this->db->table($this->table)->get_all());
-        }
+        return $this->db->get_row($sql, $params);
+    }
 
-        return [
-            'records'    => $records,
-            'total_rows' => $total_rows
-        ];
+    // Insert new user
+  public function create_user($data)
+{
+    $insertData = [
+        'username' => $data['username'],
+        'email'    => $data['email']
+        // removed password and role
+    ];
+
+    return $this->db->insert($this->table, $insertData);
+}
+
+    // Update user by ID
+    public function update($id, $data)
+    {
+        return $this->db->update($this->table, $data, [$this->primary_key => $id]);
+    }
+
+    // Delete user by ID
+    public function delete($id)
+    {
+        return $this->db->delete($this->table, [$this->primary_key => $id]);
     }
 }

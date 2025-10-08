@@ -1,103 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User List</title>
-    <!-- Bootstrap CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-   <style>
-        body {
-            background: linear-gradient(to right, #87CEEB, #1E90FF);
-            font-family: Arial, sans-serif;
-            min-height: 100vh;
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+    <style>
+        /* Custom pagination style */
+        .pagination a, .pagination span {
+            margin: 0 4px;
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #1d4ed8;
+            transition: background 0.2s;
         }
-        .navbar {
-            background-color: #0047AB;
+        .pagination a:hover {
+            background: #bfdbfe;
         }
-        .card {
-            margin: 40px auto;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-            background: #f8f9fa;
-        }
-        .table thead {
-            background-color: #0047AB;
-            color: #fff;
-        }
-        .table tbody tr:hover {
-            background-color: #dbeafe;
-        }
-        .btn-primary {
-            background-color: #1E90FF;
-            border: none;
-        }
-        .btn-primary:hover {
-            background-color: #0047AB;
-        }
-        h2 {
-            color: #0047AB;
+        .pagination strong {
+            background: #1d4ed8;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
         }
     </style>
 </head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">💠USER LIST</a>
-        </div>
-    </nav>
+<body class="bg-blue-300">
+    <div class="container mx-auto mt-10">
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <h1 class="text-2xl font-bold text-center text-blue-800 mb-4">USER LIST</h1>
 
-    <!-- User List Card -->
-    <div class="container">
-        <div class="card">
-            <h2 class="text-center mb-4">USER LIST</h2>
-            <form method="get" action="<?=site_url()?>" class="flex">
-          <input 
-            type="text" 
-            name="q" 
-            value="<?=html_escape($_GET['q'] ?? '')?>" 
-            placeholder="Search user..." 
-            class="w-full border border-purple-200 bg-purple-50 rounded-l-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300 text-gray-800">
-          <button type="submit" class="bg-purple-500 hover:bg-purple-600 text-white px-4 rounded-r-xl transition">
-            🔍
-          </button>
-        </form>
-            <a href="<?=site_url('user/create');?>" class="btn btn-primary mb-3">+ Add New User</a>
-            <table class="table table-bordered table-striped table-hover text-dark">
+            <!-- Search form -->
+            <form method="get" action="<?= site_url('user/index'); ?>" class="flex justify-center mb-4">
+                <input type="text" name="q" value="<?= isset($q) ? htmlspecialchars($q) : '' ?>"
+                       placeholder="Search user..."
+                       class="border rounded-l px-4 py-2 w-1/3" />
+                <button type="submit"
+                        class="bg-blue-500 text-white px-4 py-2 rounded-r">🔍</button>
+            </form>
+
+            <!-- Add New User button -->
+            <div class="flex justify-center mb-4">
+                <a href="<?= site_url('user/create'); ?>"
+                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                   + Add New User
+                </a>
+            </div>
+
+            <!-- User table -->
+            <table class="table-auto w-full border-collapse border border-gray-300">
                 <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th width="20%">Actions</th>
+                    <tr class="bg-blue-200">
+                        <th class="border px-4 py-2">ID</th>
+                        <th class="border px-4 py-2">Username</th>
+                        <th class="border px-4 py-2">Email</th>
+                        <th class="border px-4 py-2">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach(html_escape($all) as $user): ?>
+                    <?php if (!empty($all)): ?>
+                        <?php foreach ($all as $user): ?>
+                            <tr>
+                                <td class="border px-4 py-2"><?= $user['id']; ?></td>
+                                <td class="border px-4 py-2"><?= htmlspecialchars($user['username']); ?></td>
+                                <td class="border px-4 py-2"><?= htmlspecialchars($user['email']); ?></td>
+                                <td class="border px-4 py-2">
+                                    <a href="<?= site_url('user/edit/'.$user['id']); ?>" class="text-blue-600 hover:underline">Edit</a> |
+                                    <a href="<?= site_url('user/delete/'.$user['id']); ?>" onclick="return confirm('Are you sure?');" class="text-red-600 hover:underline">Delete</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
                         <tr>
-                            <td><?=$user['id'];?></td>
-                            <td><?=$user['username'];?></td>
-                            <td><?=$user['email'];?></td>
-                            <td>
-                                <a href="<?=site_url('user/update/'. $user['id']);?>" class="btn btn-sm btn-warning">Edit</a>
-                                <a href="<?=site_url('user/delete/'. $user['id']);?>" 
-                                   class="btn btn-sm btn-danger"
-                                   onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
-                            </td>
+                            <td colspan="4" class="text-center py-4">No users found.</td>
                         </tr>
-                    <?php endforeach; ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
-        </div>
-        <div class="mt-6 flex justify-center">
-        <div class="pagination">
-          <?php echo $page; ?>
-        </div>
-      </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+            <!-- Pagination -->
+<div class="mt-6 flex justify-center">
+    <div class="pagination flex space-x-2">
+        <?= $page; ?>
+    </div>
+</div>
+
+<style>
+    .pagination a, .pagination strong {
+        margin: 0 4px;
+        padding: 6px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        text-decoration: none;
+        color: #1d4ed8;
+        transition: background 0.2s;
+    }
+    .pagination a:hover {
+        background: #bfdbfe;
+    }
+    .pagination strong {
+        background: #1d4ed8;
+        color: white;
+    }
+</style>
+
 </body>
 </html>
