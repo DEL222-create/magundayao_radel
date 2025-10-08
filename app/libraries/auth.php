@@ -28,7 +28,6 @@ class Auth
         'username' => $username,
         'password' => $hash,
         'role' => $role,
-        'created_at' => date('Y-m-d H:i:s')
     ]);
 }
 
