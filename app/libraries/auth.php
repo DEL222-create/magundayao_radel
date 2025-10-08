@@ -21,24 +21,23 @@ class Auth
      * Register a new user
      */
     public function register($username, $password, $role = 'user')
-    
-    {
-        
-        $hash = password_hash($password, PASSWORD_DEFAULT);
-        return $this->db->table('users')->insert([
-            'username' => $username,
-            'password' => $hash,
-            'role' => $role,
-            'created_at' => date('Y-m-d H:i:s')
-        ]);
-    }
+{
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+
+    return $this->db->insert('users', [
+        'username' => $username,
+        'password' => $hash,
+        'role' => $role,
+        'created_at' => date('Y-m-d H:i:s')
+    ]);
+}
+
     /**
      * Login user
      */
     public function login($username, $password)
     {
-    $username = $username;
-    $password = $password;
+
 
     // Allow login via username
     $user = $this->db->table('users')
