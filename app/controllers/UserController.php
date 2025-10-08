@@ -7,15 +7,11 @@ class UserController extends Controller {
         parent::__construct();
         $this->call->model('UserModel');
         $this->call->library('pagination');
+        $this->call->library('auth');
 
-        // ✅ Require login
-        if (!isset($_SESSION['user_id'])) {
-            redirect(site_url('auth/login'));
-        }
-
-        // ✅ Require admin role
-        if ($_SESSION['role'] !== 'admin') {
-            redirect(site_url('auth/dashboard'));
+        if (!$this->auth->is_logged_in()) {
+            redirect('auth/login');
+            exit;
         }
     }
 
@@ -53,6 +49,7 @@ class UserController extends Controller {
         );
 
         $data['page'] = $this->pagination->paginate();
+        $data['auth'] = $this->auth;
         $this->call->view('user/index', $data);
     }
 
