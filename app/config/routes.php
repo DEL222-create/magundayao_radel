@@ -44,10 +44,14 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 */
 
 $router->get('/', 'UserController::index');
-$router->get('/user', 'UserController::index');
-$router->get('/user/index', 'UserController::index');        // pagination base
+$router->get('/users', 'UserController::index');
+$router->get('/user/index', 'UserController::index');       // pagination base
 $router->get('/user/index/{page}', 'UserController::index'); // pagination with page number
-
 $router->match('/user/create', 'UserController::create', ['GET','POST']);
-$router->match('/user/edit/{id}', 'UserController::edit', ['GET','POST']); // changed update -> edit
-$router->get('/user/delete/{id}', 'UserController::delete');
+$router->match('/user/edit/{id}', 'UserController::edit', ['GET','POST']);
+$router->get('user/delete/{id}', 'UserController::delete');
+
+$router->match('/auth/login', 'AuthController::login', ['GET','POST']);
+$router->match('/auth/register', 'AuthController::register', ['GET','POST']);
+$router->get('/auth/dashboard', 'AuthController::dashboard');
+$router->get('/auth/logout', 'AuthController::logout');
