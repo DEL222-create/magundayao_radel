@@ -50,17 +50,9 @@ class UserController extends Controller {
 
 $this->pagination->initialize($total_rows, $records_per_page, $page, $base_url);
 
-<<<<<<< HEAD
         $data['page'] = $this->pagination->paginate();
         $data['auth'] = $this->auth;
         $this->call->view('user/index', $data);
-=======
-$data['all']  = $records;
-$data['page'] = $this->pagination->paginate();
-$data['q']    = $q;
-
-$this->call->view('user/index', $data);
->>>>>>> 73b126847d3f3f4da1f228fb3c0258a5da927254
     }
 
     public function create()
