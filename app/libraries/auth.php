@@ -39,9 +39,8 @@ class Auth
 
 
     // Allow login via username
-    $user = $this->db->table('users')
-                       ->where('username', $username)
-                       ->get();
+    $user = $this->db->fetch("SELECT * FROM users WHERE username = ?", [$username]);
+
 
     
 
