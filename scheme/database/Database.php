@@ -6,10 +6,14 @@ class Database
     private static $instance = null;
     private $pdo;
 
+    // For query builder style
+    private $table;
+    private $where = '';
+    private $params = [];
+
     public function __construct($dbname = null)
     {
         try {
-            // Get DB credentials from Render Environment Variables
             $host     = getenv('DB_HOST');
             $dbname   = getenv('DB_NAME');
             $username = getenv('DB_USER');
@@ -20,15 +24,11 @@ class Database
                 throw new Exception("Database environment variables not set.");
             }
 
-            // Build DSN string for PDO
             $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
-
-            // Create PDO instance
             $this->pdo = new PDO($dsn, $username, $password, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ]);
-
         } catch (Exception $e) {
             die("DB Connection failed: " . $e->getMessage());
         }
@@ -42,7 +42,7 @@ class Database
         return self::$instance;
     }
 
-    /** ========== CORE QUERY HELPERS ========== **/
+    /** ================= CORE QUERY HELPERS ================= **/
 
     public function query($sql, $params = [])
     {
@@ -51,33 +51,29 @@ class Database
         return $stmt;
     }
 
-    // Fetch single row
     public function fetch($sql, $params = [])
     {
         return $this->query($sql, $params)->fetch();
     }
 
-    // Fetch multiple rows
     public function fetchAll($sql, $params = [])
     {
         return $this->query($sql, $params)->fetchAll();
     }
 
-    /** ========== ALIASES (para sa LavaLust style) ========== **/
+    /** ================= LAVALUST STYLE ALIASES ================= **/
 
-    // Alias of fetch
     public function get_row($sql, $params = [])
     {
         return $this->fetch($sql, $params);
     }
 
-    // Alias of fetchAll
     public function get_all($sql, $params = [])
     {
         return $this->fetchAll($sql, $params);
     }
 
-    /** ========== CRUD HELPERS ========== **/
+    /** ================= CRUD HELPERS ================= **/
 
     public function insert($table, $data)
     {
@@ -107,5 +103,38 @@ class Database
         $whereClause = implode(' AND ', array_map(fn($k) => "$k = :$k", array_keys($where)));
         $sql = "DELETE FROM {$table} WHERE {$whereClause}";
         return $this->query($sql, $where);
+    }
+
+    /** ================= CHAINABLE QUERY BUILDER ================= **/
+
+    public function table($table)
+    {
+        $this->table = $table;
+        $this->where = '';
+        $this->params = [];
+        return $this;
+    }
+
+    public function where($column, $value)
+    {
+        $this->where = "WHERE {$column} = :{$column}";
+        $this->params = [$column => $value];
+        return $this;
+    }
+
+    public function get()
+    {
+        $sql = "SELECT * FROM {$this->table} {$this->where} LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($this->params);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getAll()
+    {
+        $sql = "SELECT * FROM {$this->table} {$this->where}";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($this->params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
