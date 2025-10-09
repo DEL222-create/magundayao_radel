@@ -33,7 +33,7 @@ class AuthController extends Controller
 
             $this->call->library('auth');
             
-            if ($this->auth->register($username, $password, $role)) {
+            if ($this->auth->register($username, $email, $password, $role)) {
                 $this->session->set_userdata('success', 'Account created successfully! Please log in.');
                 redirect('auth/login');
             } else {

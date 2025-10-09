@@ -22,7 +22,7 @@ class Auth
      */
     public function register($username, $password, $role = 'user')
 {
-    $hash = password_hash($password, PASSWORD_DEFAULT);
+    $hash = password_hash($password,PASSWORD_DEFAULT);
 
     return $this->db->insert('users', [
         'username' => $username,

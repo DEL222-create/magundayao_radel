@@ -7,7 +7,6 @@ class UserController extends Controller {
         parent::__construct();
         $this->call->model('UserModel');
         $this->call->library('pagination');
-
         $this->call->library('auth');
 
         if (!$this->auth->is_logged_in()) {
@@ -52,6 +51,8 @@ $this->pagination->initialize($total_rows, $records_per_page, $page, $base_url);
 
         $data['page'] = $this->pagination->paginate();
         $data['auth'] = $this->auth;
+        $data['all'] = $records;
+        $data['q'] = $q;
         $this->call->view('user/index', $data);
     }
 
