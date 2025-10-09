@@ -1,8 +1,12 @@
 <?php
 defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
-class UserModel extends Model
-{
+/**
+ * Model: UsersModel
+ * 
+ * Automatically generated via CLI.
+ */
+class UserModel extends Model {
     protected $table = 'users';
     protected $primary_key = 'id';
 
@@ -10,85 +14,74 @@ class UserModel extends Model
     {
         parent::__construct();
     }
-    public function get_user_by_id($id)
-        {
-            return $this->db->table($this->table)
+
+     public function get_user_by_id($id)
+    {
+        return $this->db->table($this->table)
                         ->where('id', $id)
                         ->get();
-        }
-
-        public function get_all_users()
-        {
-            return $this->db->table($this->table)->get_all();
-        }
-
-    // Get users with pagination
-    public function get_records_with_pagination($limit, $offset, $q = '')
-    {
-        $limit = (int) $limit;
-        $offset = (int) $offset;
-
-        if (!empty($q)) {
-            $sql = "SELECT * FROM {$this->table} 
-                    WHERE username LIKE ? OR email LIKE ? 
-                    LIMIT $limit OFFSET $offset";
-            return $this->db->get_all($sql, ["%$q%", "%$q%"]);
-        } else {
-            $sql = "SELECT * FROM {$this->table} 
-                    LIMIT $limit OFFSET $offset";
-            return $this->db->get_all($sql);
-        }
     }
 
-    // Count total users (for pagination)
-    public function count_all_records($q = '')
+    public function get_user_by_username($username)
     {
-        if (!empty($q)) {
-            $sql = "SELECT COUNT(*) as total FROM {$this->table} 
-                    WHERE username LIKE ? OR email LIKE ?";
-            $row = $this->db->fetch($sql, ["%$q%", "%$q%"]);
-        } else {
-            $sql = "SELECT COUNT(*) as total FROM {$this->table}";
-            $row = $this->db->fetch($sql);
+        return $this->db->table($this->table)
+                        ->where('username', $username)
+                        ->get();
+    }
+
+    public function update_password($user_id, $new_password) {
+    return $this->db->table($this->table)
+                    ->where('id', $user_id)
+                    ->update([
+                        'password' => password_hash($new_password, PASSWORD_DEFAULT)
+                    ]);
+    }
+
+
+    public function get_all_users()
+    {
+        return $this->db->table($this->table)->get_all();
+    }
+
+    public function get_logged_in_user()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
 
-        return $row ? $row['total'] : 0;
-    }
-
-    // Find single user
-    public function find($id, $with_deleted = false)
-    {
-        $sql = "SELECT * FROM {$this->table} WHERE {$this->primary_key} = ?";
-        $params = [$id];
-
-        if (!$with_deleted && property_exists($this, 'deleted_field')) {
-            $sql .= " AND {$this->deleted_field} IS NULL";
+        if (isset($_SESSION['user']['id'])) {
+            return $this->get_user_by_id($_SESSION['user']['id']);
         }
 
-        return $this->db->get_row($sql, $params);
+        return null;
     }
 
-    // Insert new user
-  public function create_user($data)
-{
-    $insertData = [
-        'username' => $data['username'],
-        'email'    => $data['email']
-        // removed password and role
-    ];
 
-    return $this->db->insert($this->table, $insertData);
-}
 
-    // Update user by ID
-    public function update($id, $data)
-    {
-        return $this->db->update($this->table, $data, [$this->primary_key => $id]);
-    }
+    public function page($q = '', $records_per_page = null, $page = null) {
+ 
+            if (is_null($page)) {
+                return $this->db->table('users')->get_all();
+            } else {
+                $query = $this->db->table('users');
 
-    // Delete user by ID
-    public function delete($id)
-    {
-        return $this->db->delete($this->table, [$this->primary_key => $id]);
-    }
+                // Build LIKE conditions
+                $query->like('id', '%'.$q.'%')
+                    ->or_like('username', '%'.$q.'%')
+                    ->or_like('email', '%'.$q.'%')
+                    ->or_like('role', '%'.$q.'%');
+                    
+                // Clone before pagination
+                $countQuery = clone $query;
+
+                $data['total_rows'] = $countQuery->select_count('*', 'count')
+                                                ->get()['count'];
+
+                $data['records'] = $query->pagination($records_per_page, $page)
+                                        ->get_all();
+
+                return $data;
+            }
+        }
+
 }
