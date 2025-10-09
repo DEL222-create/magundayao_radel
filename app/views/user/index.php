@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
+    /* Background animation */
     @keyframes gradientShift {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
@@ -18,16 +19,51 @@
       animation: gradientShift 10s ease infinite;
     }
 
+    /* Table row animation */
     @keyframes fadeSlideIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-    tbody tr { animation: fadeSlideIn 0.5s ease forwards; }
+    tbody tr {
+      animation: fadeSlideIn 0.5s ease forwards;
+    }
 
-    .pagination { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin-top: 1.5rem; }
-    .pagination a { display: inline-block; padding: 0.5rem 1rem; background-color: #dc2626; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 500; transition: transform 0.2s, background-color 0.2s; }
-    .pagination a:hover { background-color: #b91c1c; transform: scale(1.1); }
-    .pagination strong { display: inline-block; padding: 0.5rem 1rem; background-color: #7f1d1d; color: white; border-radius: 0.5rem; font-weight: 600; }
+    /* Pagination design */
+    .pagination {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+    .pagination a {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background-color: #dc2626;
+      color: white;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 500;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    .pagination a:hover {
+      background-color: #b91c1c;
+      transform: scale(1.1);
+    }
+    .pagination strong {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background-color: #7f1d1d;
+      color: white;
+      border-radius: 0.5rem;
+      font-weight: 600;
+    }
   </style>
 </head>
 
@@ -39,7 +75,7 @@
       <a href="#" class="text-white font-bold text-xl tracking-wide flex items-center gap-2 hover:scale-105 transition-transform">
         <i class="fa-solid fa-users"></i> User Management
       </a>
-      <a href="<?= site_url('auth/logout'); ?>"
+      <a href="<?=site_url('auth/logout');?>"
          class="bg-white text-red-700 font-semibold px-4 py-2 rounded-lg shadow hover:bg-gray-100 hover:scale-105 active:scale-95 transition-all duration-200">
          Logout
       </a>
@@ -58,19 +94,24 @@
           </h2>
           <p class="text-lg">Role: <span class="font-semibold"><?= html_escape($logged_in_user['role']); ?></span></p>
         </div>
+      <?php else: ?>
+        <div class="mb-6 bg-red-100 text-red-700 px-4 py-3 rounded-md text-center">
+          Logged in user not found
+        </div>
       <?php endif; ?>
 
-      <!-- Header & Search -->
+      <!-- Header -->
       <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
         <h1 class="text-2xl font-semibold text-red-700 flex items-center gap-2">
           <i class="fa-solid fa-address-book"></i> User Directory
         </h1>
 
-        <form method="get" action="<?= site_url('user'); ?>" class="flex w-full sm:w-auto">
+        <!-- Search Bar -->
+        <form method="get" action="<?=site_url('user');?>" class="flex">
           <input 
             type="text" 
             name="q" 
-            value="<?= html_escape($_GET['q'] ?? '') ?>" 
+            value="<?=html_escape($_GET['q'] ?? '')?>" 
             placeholder="Search user..." 
             class="w-full border border-gray-300 rounded-l-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-gray-800 transition">
           <button type="submit" class="bg-red-600 hover:bg-red-700 active:scale-95 text-white px-4 rounded-r-md transition-all duration-200">
@@ -78,8 +119,8 @@
           </button>
         </form>
       </div>
-
-      <!-- User Table -->
+      
+      <!-- Table -->
       <div class="overflow-x-auto rounded-md border border-gray-200 shadow-inner">
         <table class="w-full text-center border-collapse">
           <thead>
@@ -94,23 +135,24 @@
           <tbody class="divide-y divide-gray-100">
             <?php foreach(html_escape($users) as $user): ?>
               <tr class="hover:bg-red-50 hover:scale-[1.02] transition-all duration-300">
-                <td class="py-3 px-4"><?= $user['id']; ?></td>
-                <td class="py-3 px-4 font-medium text-gray-900"><?= $user['username']; ?></td>
+                <td class="py-3 px-4"><?=($user['id']);?></td>
+                <td class="py-3 px-4 font-medium text-gray-900"><?=($user['username']);?></td>
                 <td class="py-3 px-4">
                   <span class="bg-red-100 text-red-700 text-sm font-medium px-3 py-1 rounded-full">
-                    <?= $user['email']; ?>
+                    <?=($user['email']);?>
                   </span>
                 </td>
-                <td class="py-3 px-4 font-medium text-gray-800"><?= $user['role']; ?></td>
+                <td class="py-3 px-4 font-medium text-gray-800"><?=($user['role']);?></td>
                 <td class="py-3 px-4 space-x-3">
                   <?php if($logged_in_user['role'] === 'admin' || $logged_in_user['id'] == $user['id']): ?>
-                    <a href="<?= site_url('user/update/'.$user['id']); ?>"
+                    <a href="<?=site_url('user/update/'.$user['id']);?>"
                        class="px-4 py-2 text-sm font-medium rounded-md bg-red-500 text-white hover:bg-red-600 active:scale-95 transition-all duration-200 shadow-sm">
                       Update
                     </a>
                   <?php endif; ?>
+
                   <?php if($logged_in_user['role'] === 'admin'): ?>
-                    <a href="<?= site_url('user/delete/'.$user['id']); ?>"
+                    <a href="<?=site_url('user/delete/'.$user['id']);?>"
                        onclick="return confirm('Are you sure you want to delete this record?');"
                        class="px-4 py-2 text-sm font-medium rounded-md bg-red-700 text-white hover:bg-red-800 active:scale-95 transition-all duration-200 shadow-sm">
                       Delete
@@ -124,31 +166,23 @@
       </div>
 
       <!-- Pagination -->
-      <?php if(!empty($page)): ?>
       <div class="mt-6 flex justify-center">
         <div class="pagination">
-          <?php foreach($page as $link): ?>
-            <?php if($link['active']): ?>
-              <strong><?= $link['label']; ?></strong>
-            <?php else: ?>
-              <a href="<?= $link['url']; ?>"><?= $link['label']; ?></a>
-            <?php endif; ?>
-          <?php endforeach; ?>
+          <?= $page; ?>
         </div>
       </div>
-      <?php endif; ?>
 
       <!-- Create New User -->
-      <div class="mt-8 text-center">
-        <a href="<?= site_url('user/create') ?>"
-           class="inline-block bg-red-600 hover:bg-red-700 active:scale-95 text-white font-medium px-6 py-3 rounded-md shadow-md transition-all duration-200">
-           Create New User
-        </a>
+      <div class="mt-6 text-center">
+        <a href="<?=site_url('user/create')?>"
+           class="inline-block bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 py-3 rounded-md shadow-sm transition duration-200">
+          Create New User
       </div>
-
     </div>
   </div>
 
+  <!-- Font Awesome -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
 </body>
 </html>
+

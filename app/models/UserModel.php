@@ -53,28 +53,29 @@ class UserModel extends Model {
 
     /**
      * Pagination with search
-     * @param string $q Search query
-     * @param int $records_per_page Number of records per page
-     * @param int $page Current page number (1-based)
      */
-    public function page($q = '', $records_per_page = 5, $page = 1)
+    public function page($q = '', $records_per_page = null, $page = null)
     {
+        if (is_null($page)) {
+            // No pagination, return all users
+            return $this->db->table($this->table)->get_all();
+        }
+
         $offset = ($page - 1) * $records_per_page;
         $limit = (int)$records_per_page;
 
-        // Search query with LIMIT and OFFSET
+        // Build search query using Database::query() method
         $sql = "SELECT * FROM {$this->table} 
                 WHERE id LIKE :q
                    OR username LIKE :q
                    OR email LIKE :q
                    OR role LIKE :q
-                ORDER BY {$this->primary_key} ASC
                 LIMIT $limit OFFSET $offset";
 
         $stmt = $this->db->query($sql, [':q' => '%'.$q.'%']);
         $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Count total rows matching search
+        // Count total rows for pagination
         $count_sql = "SELECT COUNT(*) AS count FROM {$this->table} 
                       WHERE id LIKE :q
                          OR username LIKE :q
@@ -84,12 +85,7 @@ class UserModel extends Model {
         $count_stmt = $this->db->query($count_sql, [':q' => '%'.$q.'%']);
         $total_rows = $count_stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
-        $total_pages = ceil($total_rows / $records_per_page);
-
         return [
-            'current_page' => $page,
-            'total_pages' => $total_pages,
-            'records_per_page' => $records_per_page,
             'total_rows' => $total_rows,
             'records' => $records
         ];
