@@ -26,7 +26,7 @@ if (!isset($logged_in_user)) {
     <h1 class="text-3xl font-bold text-center mb-6 drop-shadow-lg">👤 Create User</h1>
     <p class="text-center text-red-100 mb-8">Fill out the form below to add a new user to the system.</p>
 
-    <form id="user-form" action="<?=site_url('users/create/')?>" method="POST" class="space-y-5">
+    <form id="user-form" action="<?=site_url('user/create/')?>" method="POST" class="space-y-5">
 
       <!-- Username -->
       <div>

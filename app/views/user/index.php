@@ -145,7 +145,7 @@
                 <td class="py-3 px-4 font-medium text-gray-800"><?=($user['role']);?></td>
                 <td class="py-3 px-4 space-x-3">
                   <?php if($logged_in_user['role'] === 'admin' || $logged_in_user['id'] == $user['id']): ?>
-                    <a href="<?=site_url('users/update/'.$user['id']);?>"
+                    <a href="<?=site_url('user/update/'.$user['id']);?>"
                        class="px-4 py-2 text-sm font-medium rounded-md bg-red-500 text-white hover:bg-red-600 active:scale-95 transition-all duration-200 shadow-sm">
                       Update
                     </a>
@@ -180,7 +180,7 @@
           ➕ Create New User
 =======
       <div class="mt-8 text-center">
-        <a href="<?=site_url('users/create')?>"
+        <a href="<?=site_url('user/create')?>"
            class="inline-block bg-red-600 hover:bg-red-700 active:scale-95 text-white font-medium px-6 py-3 rounded-md shadow-md transition-all duration-200">
           Create New User
 >>>>>>> d712f23 (radel):app/views/user/index.php
