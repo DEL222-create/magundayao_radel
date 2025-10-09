@@ -52,32 +52,27 @@ class UserModel extends Model {
     }
 
     /**
-     * Pagination with search (fixed to use Database::query() method)
+     * Pagination with search
      */
     public function page($q = '', $records_per_page = null, $page = null)
     {
         if (is_null($page)) {
+            // No pagination, return all users
             return $this->db->table($this->table)->get_all();
         }
 
         $offset = ($page - 1) * $records_per_page;
+        $limit = (int)$records_per_page;
 
-        // Search query
+        // Build search query using Database::query() method
         $sql = "SELECT * FROM {$this->table} 
                 WHERE id LIKE :q
                    OR username LIKE :q
                    OR email LIKE :q
                    OR role LIKE :q
-                LIMIT :limit OFFSET :offset";
+                LIMIT $limit OFFSET $offset";
 
-        $params = [
-            ':q' => '%'.$q.'%',
-            ':limit' => (int)$records_per_page,
-            ':offset' => (int)$offset
-        ];
-
-        // Use Database wrapper query method (we need to add this to Database class)
-        $stmt = $this->db->query($sql, $params);
+        $stmt = $this->db->query($sql, [':q' => '%'.$q.'%']);
         $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Count total rows for pagination
@@ -86,6 +81,7 @@ class UserModel extends Model {
                          OR username LIKE :q
                          OR email LIKE :q
                          OR role LIKE :q";
+
         $count_stmt = $this->db->query($count_sql, [':q' => '%'.$q.'%']);
         $total_rows = $count_stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
