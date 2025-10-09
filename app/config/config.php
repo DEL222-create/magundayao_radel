@@ -79,12 +79,9 @@ $config['ENVIRONMENT']             = 'development';
 | WARNING: You MUST set this value!
 |
 */
-<<<<<<< HEAD
+
 $config['base_url'] 				= 'https://magundayao-radel.onrender.com/';
-=======
-$config['base_url'] 				= 'https://magundayao-radel.onrender.com';
-//$config['base_url'] 				= 'http://localhost:3000/';
->>>>>>> d712f23 (radel)
+
 
 /*
 |--------------------------------------------------------------------------
