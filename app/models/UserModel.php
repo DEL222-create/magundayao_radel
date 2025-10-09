@@ -1,11 +1,6 @@
 <?php
 defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
-/**
- * Model: UsersModel
- * 
- * Automatically generated via CLI.
- */
 class UserModel extends Model {
     protected $table = 'user';
     protected $primary_key = 'id';
@@ -57,47 +52,46 @@ class UserModel extends Model {
     }
 
     /**
-     * Pagination with search
+     * Pagination with search (fixed to use Database::query() method)
      */
     public function page($q = '', $records_per_page = null, $page = null)
     {
         if (is_null($page)) {
-            // No pagination, return all users
             return $this->db->table($this->table)->get_all();
-        } else {
-            $offset = ($page - 1) * $records_per_page;
-
-            // Build search query using PDO directly
-            $sql = "SELECT * FROM {$this->table} 
-                    WHERE id LIKE :q
-                       OR username LIKE :q
-                       OR email LIKE :q
-                       OR role LIKE :q
-                    LIMIT :limit OFFSET :offset";
-
-            $stmt = $this->db->pdo->prepare($sql);
-            $stmt->bindValue(':q', '%'.$q.'%', PDO::PARAM_STR);
-            $stmt->bindValue(':limit', (int)$records_per_page, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
-            $stmt->execute();
-
-            $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            // Count total rows for pagination
-            $count_sql = "SELECT COUNT(*) AS count FROM {$this->table} 
-                          WHERE id LIKE :q
-                             OR username LIKE :q
-                             OR email LIKE :q
-                             OR role LIKE :q";
-            $count_stmt = $this->db->pdo->prepare($count_sql);
-            $count_stmt->bindValue(':q', '%'.$q.'%', PDO::PARAM_STR);
-            $count_stmt->execute();
-            $total_rows = $count_stmt->fetch(PDO::FETCH_ASSOC)['count'];
-
-            return [
-                'total_rows' => $total_rows,
-                'records' => $records
-            ];
         }
+
+        $offset = ($page - 1) * $records_per_page;
+
+        // Search query
+        $sql = "SELECT * FROM {$this->table} 
+                WHERE id LIKE :q
+                   OR username LIKE :q
+                   OR email LIKE :q
+                   OR role LIKE :q
+                LIMIT :limit OFFSET :offset";
+
+        $params = [
+            ':q' => '%'.$q.'%',
+            ':limit' => (int)$records_per_page,
+            ':offset' => (int)$offset
+        ];
+
+        // Use Database wrapper query method (we need to add this to Database class)
+        $stmt = $this->db->query($sql, $params);
+        $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Count total rows for pagination
+        $count_sql = "SELECT COUNT(*) AS count FROM {$this->table} 
+                      WHERE id LIKE :q
+                         OR username LIKE :q
+                         OR email LIKE :q
+                         OR role LIKE :q";
+        $count_stmt = $this->db->query($count_sql, [':q' => '%'.$q.'%']);
+        $total_rows = $count_stmt->fetch(PDO::FETCH_ASSOC)['count'];
+
+        return [
+            'total_rows' => $total_rows,
+            'records' => $records
+        ];
     }
 }

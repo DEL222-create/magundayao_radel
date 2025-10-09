@@ -45,11 +45,12 @@ class Database
     /** ================= CORE QUERY HELPERS ================= **/
 
     public function query($sql, $params = [])
-    {
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-        return $stmt;
-    }
+{
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt;
+}
+
 
     public function fetch($sql, $params = [])
     {
