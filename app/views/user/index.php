@@ -8,24 +8,44 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .pagination a, .pagination span {
-            margin: 0 4px;
-            padding: 8px 12px;
+            margin: 0 2px;
+            padding: 10px 14px;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
             text-decoration: none;
             color: #3b82f6;
             transition: all 0.3s ease;
             font-weight: 500;
+            font-size: 14px;
+            min-width: 40px;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         .pagination a:hover {
-            background: #dbeafe;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
             border-color: #3b82f6;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+            color: #1e40af;
         }
         .pagination strong {
             background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
             color: white;
             border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+        .pagination .disabled {
+            color: #9ca3af;
+            background: #f9fafb;
+            border-color: #e5e7eb;
+            cursor: not-allowed;
+        }
+        .pagination .disabled:hover {
+            transform: none;
+            box-shadow: none;
+            background: #f9fafb;
         }
         .btn-primary {
             background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
@@ -141,6 +161,18 @@
                     <i class="fas fa-list mr-2"></i>User Management
                 </h1>
                 
+                <?php if (isset($_SESSION['success'])): ?>
+                    <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
+                        <i class="fas fa-check-circle mr-2"></i><?= $_SESSION['success']; unset($_SESSION['success']); ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['error'])): ?>
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+                        <i class="fas fa-exclamation-circle mr-2"></i><?= $_SESSION['error']; unset($_SESSION['error']); ?>
+                    </div>
+                <?php endif; ?>
+                
                 <!-- Search and Add User -->
                 <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
                     <form method="get" action="<?= site_url('user/index'); ?>" class="flex-1 max-w-md">
@@ -239,12 +271,27 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
+            <!-- Enhanced Pagination -->
             <?php if (!empty($all)): ?>
-                <div class="bg-gray-50 px-6 py-4 border-t">
-                    <div class="flex justify-center">
-                        <div class="pagination flex space-x-2">
+                <div class="bg-gray-50 px-6 py-6 border-t">
+                    <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+                        <!-- Pagination Info -->
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Showing users with pagination
+                        </div>
+                        
+                        <!-- Pagination Controls -->
+                        <div class="flex items-center space-x-2">
                             <?= $page; ?>
+                        </div>
+                        
+                        <!-- Quick Actions -->
+                        <div class="flex items-center space-x-2">
+                            <a href="<?= site_url('user/create'); ?>" 
+                               class="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                                <i class="fas fa-plus mr-1"></i> Add User
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -106,7 +106,7 @@ $config['index_page']               = '';
 |
 */
 $config['log_threshold']            = 0;
-$config['log_dir']                  = 'tmp/11_logs/';
+$config['log_dir']                  = 'runtime/logs/';
 
 /*
 |--------------------------------------------------------------------------
@@ -212,7 +212,7 @@ $config['language'] 				= 'en-US';
 $config['sess_driver']             = 'file';
 $config['sess_cookie_name']        = 'LLSession';
 $config['sess_expiration']         = 7200;
-$config['sess_save_path']          = 'tmp/11_sessions/';
+$config['sess_save_path']          = 'runtime/sessions/';
 $config['sess_match_ip']           = TRUE;
 $config['sess_match_fingerprint']  = TRUE;
 $config['sess_time_to_update']     = 300;
