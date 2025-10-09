@@ -80,7 +80,7 @@ if (!isset($logged_in_user)) {
 
     <!-- Back Link -->
     <div class="mt-6 text-center">
-      <a href="<?=site_url('/users'); ?>" class="text-red-200 hover:text-white text-sm font-medium transition duration-200">
+      <a href="<?=site_url('/user'); ?>" class="text-red-200 hover:text-white text-sm font-medium transition duration-200">
         ← Back to User Directory
       </a>
     </div>

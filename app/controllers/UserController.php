@@ -49,7 +49,7 @@ class UserController extends Controller {
         $this->pagination->initialize($total_rows, $records_per_page, $page, 'users?q='.$q);
         $data['page'] = $this->pagination->paginate();
 
-        $this->call->view('users/index', $data);
+        $this->call->view('user/index', $data);
     }
 
     public function create()

@@ -183,7 +183,7 @@
         <a href="<?=site_url('users/create')?>"
            class="inline-block bg-red-600 hover:bg-red-700 active:scale-95 text-white font-medium px-6 py-3 rounded-md shadow-md transition-all duration-200">
           Create New User
->>>>>>> d712f23 (radel):app/views/users/index.php
+>>>>>>> d712f23 (radel):app/views/user/index.php
         </a>
       </div>
     </div>
