@@ -253,7 +253,7 @@ class UserController extends Controller {
             'page_delimiter' => '&page='
         ]);
         $this->pagination->set_theme('bootstrap');
-        $this->pagination->initialize($total_rows, $records_per_page, $page, 'users?q='.$q);
+        $this->pagination->initialize($total_rows, $records_per_page, $page, 'user?q='.$q);
         $data['page'] = $this->pagination->paginate();
 
         $this->call->view('user/dashboard', $data);
