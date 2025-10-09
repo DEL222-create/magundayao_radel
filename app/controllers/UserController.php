@@ -7,7 +7,6 @@ class UserController extends Controller {
         parent::__construct();
         $this->call->model('UserModel');
         $this->call->library('pagination');
-
         $this->call->library('auth');
 
         if (!$this->auth->is_logged_in()) {
@@ -52,8 +51,8 @@ $this->pagination->initialize($total_rows, $records_per_page, $page, $base_url);
 
         $data['page'] = $this->pagination->paginate();
         $data['auth'] = $this->auth;
-        $data['all'] = $records; // Pass the user records to the view
-        $data['q'] = $q; // Pass search query to the view
+        $data['all'] = $records;
+        $data['q'] = $q;
         $this->call->view('user/index', $data);
     }
 
@@ -67,10 +66,9 @@ $this->pagination->initialize($total_rows, $records_per_page, $page, $base_url);
             ];
 
             if ($this->UserModel->create_user($data)) {
-                $this->session->set_userdata('success', 'User created successfully!');
                 redirect('user/index');
             } else {
-                $this->session->set_userdata('error', 'Failed to create user.');
+                $_SESSION['error'] = "Failed to create user.";
             }
         }
 
@@ -89,16 +87,12 @@ $this->pagination->initialize($total_rows, $records_per_page, $page, $base_url);
                 $data['password'] = password_hash($_POST['password'], PASSWORD_BCRYPT);
             }
 
-            if ($this->UserModel->update($id, $data)) {
-                $this->session->set_userdata('success', 'User updated successfully!');
-            } else {
-                $this->session->set_userdata('error', 'Failed to update user.');
-            }
+            $this->UserModel->update($id, $data);
             redirect('user/index');
         }
 
         $user = $this->UserModel->find($id);
-        $this->call->view('user/update', ['user' => $user]);
+        $this->call->view('user/edit', ['user' => $user]);
     }
 
     public function delete($id)
