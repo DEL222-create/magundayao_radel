@@ -173,17 +173,14 @@
       </div>
 
       <!-- Create New User -->
-<<<<<<< HEAD:app/views/user/index.php
       <div class="mt-6 text-center">
         <a href="<?=site_url('user/create')?>"
            class="inline-block bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 py-3 rounded-md shadow-sm transition duration-200">
           ➕ Create New User
-=======
       <div class="mt-8 text-center">
         <a href="<?=site_url('user/create')?>"
            class="inline-block bg-red-600 hover:bg-red-700 active:scale-95 text-white font-medium px-6 py-3 rounded-md shadow-md transition-all duration-200">
           Create New User
->>>>>>> d712f23 (radel):app/views/user/index.php
         </a>
       </div>
     </div>
