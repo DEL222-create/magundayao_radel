@@ -16,6 +16,12 @@ class UserModel extends Model {
         return $this->db->insert($this->table, $data);
     }
 
+    public function delete($id)
+    {
+        return $this->db->delete($this->table, ['id' => $id]);
+    }
+
+
     public function get_user_by_id($id)
     {
         return $this->db->table($this->table)
