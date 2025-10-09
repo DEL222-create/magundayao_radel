@@ -33,7 +33,7 @@ class UserController extends Controller {
         $q    = isset($_GET['q']) && !empty($_GET['q']) ? trim($this->io->get('q')) : '';
 
         $records_per_page = 5;
-        $users = $this->UsersModel->page($q, $records_per_page, $page);
+        $users = $this->UserModel->page($q, $records_per_page, $page);
 
         $data['users'] = $users['records'];
         $total_rows = $users['total_rows'];
@@ -207,7 +207,7 @@ class UserController extends Controller {
             $username = $this->io->post('username');
             $password = $this->io->post('password');
 
-            $this->call->model('UsersModel');
+            $this->call->model('UserModel');
             $user = $this->UserModel->get_user_by_username($username);
 
             if ($user) {
