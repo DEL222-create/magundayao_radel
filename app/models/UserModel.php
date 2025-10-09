@@ -10,6 +10,12 @@ class UserModel extends Model {
         parent::__construct();
     }
 
+    public function insert($data)
+    {
+        // ✅ Fix: pass table name + data to Database::insert()
+        return $this->db->insert($this->table, $data);
+    }
+
     public function get_user_by_id($id)
     {
         return $this->db->table($this->table)
