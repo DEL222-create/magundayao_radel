@@ -15,7 +15,7 @@ class UserModel extends Model {
         parent::__construct();
     }
 
-     public function get_user_by_id($id)
+    public function get_user_by_id($id)
     {
         return $this->db->table($this->table)
                         ->where('id', $id)
@@ -29,14 +29,14 @@ class UserModel extends Model {
                         ->get();
     }
 
-    public function update_password($user_id, $new_password) {
-    return $this->db->table($this->table)
-                    ->where('id', $user_id)
-                    ->update([
-                        'password' => password_hash($new_password, PASSWORD_DEFAULT)
-                    ]);
+    public function update_password($user_id, $new_password)
+    {
+        return $this->db->table($this->table)
+                        ->where('id', $user_id)
+                        ->update([
+                            'password' => password_hash($new_password, PASSWORD_DEFAULT)
+                        ]);
     }
-
 
     public function get_all_users()
     {
@@ -56,32 +56,48 @@ class UserModel extends Model {
         return null;
     }
 
+    /**
+     * Pagination with search
+     */
+    public function page($q = '', $records_per_page = null, $page = null)
+    {
+        if (is_null($page)) {
+            // No pagination, return all users
+            return $this->db->table($this->table)->get_all();
+        } else {
+            $offset = ($page - 1) * $records_per_page;
 
+            // Build search query using PDO directly
+            $sql = "SELECT * FROM {$this->table} 
+                    WHERE id LIKE :q
+                       OR username LIKE :q
+                       OR email LIKE :q
+                       OR role LIKE :q
+                    LIMIT :limit OFFSET :offset";
 
-    public function page($q = '', $records_per_page = null, $page = null) {
- 
-            if (is_null($page)) {
-                return $this->db->table('user')->get_all();
-            } else {
-                $query = $this->db->table('user');
+            $stmt = $this->db->pdo->prepare($sql);
+            $stmt->bindValue(':q', '%'.$q.'%', PDO::PARAM_STR);
+            $stmt->bindValue(':limit', (int)$records_per_page, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+            $stmt->execute();
 
-                // Build LIKE conditions
-                $query->like('id', '%'.$q.'%')
-                    ->or_like('username', '%'.$q.'%')
-                    ->or_like('email', '%'.$q.'%')
-                    ->or_like('role', '%'.$q.'%');
-                    
-                // Clone before pagination
-                $countQuery = clone $query;
+            $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                $data['total_rows'] = $countQuery->select_count('*', 'count')
-                                                ->get()['count'];
+            // Count total rows for pagination
+            $count_sql = "SELECT COUNT(*) AS count FROM {$this->table} 
+                          WHERE id LIKE :q
+                             OR username LIKE :q
+                             OR email LIKE :q
+                             OR role LIKE :q";
+            $count_stmt = $this->db->pdo->prepare($count_sql);
+            $count_stmt->bindValue(':q', '%'.$q.'%', PDO::PARAM_STR);
+            $count_stmt->execute();
+            $total_rows = $count_stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
-                $data['records'] = $query->pagination($records_per_page, $page)
-                                        ->get_all();
-
-                return $data;
-            }
+            return [
+                'total_rows' => $total_rows,
+                'records' => $records
+            ];
         }
-
+    }
 }
